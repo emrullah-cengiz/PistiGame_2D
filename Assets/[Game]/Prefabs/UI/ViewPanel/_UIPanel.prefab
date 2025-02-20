@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2673753566685316104}
   - component: {fileID: 4498874926152133981}
   - component: {fileID: 8689048622555655793}
+  - component: {fileID: 7500881846284780801}
   m_Layer: 5
   m_Name: _UIPanel
   m_TagString: Untagged
@@ -88,3 +89,19 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &7500881846284780801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4262871848686101411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55972afca34045fdb5738b447d83547f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _panelType: 0
+  _rectTransform: {fileID: 4644106668598370006}
+  _bGImage: {fileID: 4498874926152133981}
+  _canvasGroup: {fileID: 8689048622555655793}

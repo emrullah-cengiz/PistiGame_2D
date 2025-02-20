@@ -5,12 +5,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
+using VContainer.Unity;
 
-public class ProfileInfoBox : MonoBehaviour
+public class ProfileInfoBox : MonoBehaviour, IStartable
 {
     [SerializeField] private TMP_Text _playerName, _accountBalance, _winCount, _lostCount;
 
-    [Inject] private readonly PlayerDataSaveSystem _playerDataSaveSystem;
+    #region Injects
+
+    [Inject] private readonly PlayerDataSaveSystem _saveSystem;
+
+    #endregion
 
     private void OnEnable()
     {
@@ -24,12 +29,15 @@ public class ProfileInfoBox : MonoBehaviour
         Event.OnPlayerDataChanged -= OnPlayerDataChanged;
     }
 
+    public void Start() => RefreshView();
+
     private void OnPlayerDataLoaded() => RefreshView();
+
     private void OnPlayerDataChanged() => RefreshView();
 
     private void RefreshView()
     {
-        var data = _playerDataSaveSystem.Get();
+        var data = _saveSystem.Data;
 
         _playerName.text = data.Name;
         _accountBalance.text = $"{data.AccountBalance} $";

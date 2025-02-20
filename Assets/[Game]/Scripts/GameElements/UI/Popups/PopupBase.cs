@@ -9,10 +9,5 @@ public abstract class PopupBase : MonoBehaviour
     
     private Action _onClose;
 
-    private void Close()
-    {
-        _onClose?.Invoke();
-        Destroy(gameObject);
-        Destroy(this);
-    }
+ 
 }
