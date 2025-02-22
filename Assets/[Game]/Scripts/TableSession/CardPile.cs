@@ -7,13 +7,12 @@ using VContainer;
 public class CardPile
 {
     [Inject] private readonly TableSessionSettings _tableSessionSettings;
-    [Inject] private readonly CardSettings _cardSettings;
 
     public CardPileView View { get; set; }
     public List<CardData> Cards { get; set; }
-    public CardData LastAddedCard => Cards[^1];
-    public CardData FirstCard => Cards[0];
     public bool HasAnyCard => Cards.Count > 0;
+    public CardData? LastAddedCard => HasAnyCard ? Cards[^1] : null;
+    public CardData? PreviousAddedCard => Cards.Count > 1 ? Cards[^2] : null;
 
     public void Setup(CardPileView view) => View = view;
 
@@ -49,6 +48,16 @@ public class CardPile
 
     public async UniTask TransferAllTo(CardPile pile, CardTransferOptions options) => await TransferTo(pile, Cards.Count, options);
 
+    public int GetTotalPilePoints()
+    {
+        int total = 0;
+        for (var i = 0; i < Cards.Count; i++)
+            if (_tableSessionSettings.OrderedSpecialCardPoints.TryGetValue(Cards[i], out var point))
+                total += point;
+        
+        return total;
+    }
+
     public void LogPile(string pileName)
     {
 #if UNITY_EDITOR
@@ -75,11 +84,9 @@ public class CardPile
 
     public bool Contains(CardData cardData) => Cards.Exists(card => card.Equals(cardData));
 
-    #endregion
-
     public CardData GetLowestSpecialOrAnyNonSpecialCard()
     {
-        var specialCardPoints = _cardSettings.OrderedSpecialCardPoints;
+        var specialCardPoints = _tableSessionSettings.OrderedSpecialCardPoints;
 
         CardData? lowestSpecial = null;
         CardData? anyNonSpecialCard = null;
@@ -87,14 +94,16 @@ public class CardPile
         foreach (var handCard in Cards)
             if (specialCardPoints.TryGetValue(handCard, out var point))
             {
-                if (!lowestSpecial.HasValue || specialCardPoints[lowestSpecial.Value] > point) 
+                if (!lowestSpecial.HasValue || specialCardPoints[lowestSpecial.Value] > point)
                     lowestSpecial = handCard;
             }
-            else if (!anyNonSpecialCard.HasValue) 
+            else if (!anyNonSpecialCard.HasValue)
                 anyNonSpecialCard = handCard;
 
         return anyNonSpecialCard ?? lowestSpecial!.Value;
     }
+
+    #endregion
 }
 
 public struct CardTransferOptions

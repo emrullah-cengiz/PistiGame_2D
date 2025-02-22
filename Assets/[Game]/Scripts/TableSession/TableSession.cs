@@ -18,8 +18,6 @@ public class TableSession
     public CardPile DrawPile { get; private set; }
     public CardPile DiscardPile { get; private set; }
 
-    public CardData LastDiscardedCard => DiscardPile.LastAddedCard;
-
     [Inject] private readonly TableView View;
     [Inject] private readonly TableSessionSettings _tableSessionSettings;
 
@@ -96,15 +94,34 @@ public class TableSession
     {
         var lastDiscardedCard = DiscardPile.LastAddedCard;
 
-        //Collect discard pile
-        if (card.IsJack || lastDiscardedCard.Value == card.Value)
+        if (lastDiscardedCard.HasValue && (card.IsJack || lastDiscardedCard.Value.Value == card.Value))
+        {
+            int totalPilePoints = DiscardPile.GetTotalPilePoints();
+
+            //Collect discard pile
             await DiscardPile.TransferAllTo(player.CollectedPile, new(isSequential: false, despawnView: true));
 
-        //scoreHandler..
+            player.ScoreHandler.AddScoreByCard(totalPilePoints, lastDiscardedCard.Value, card);
+        }
     }
 
-    public void PrepareSessionResultData()
+    public TableSessionUserResult GetTableSessionUserResult()
     {
-        
+        TablePlayerBase winner = _players.OrderByDescending(x => x.ScoreHandler.CurrentScore)
+                                         .FirstOrDefault();
+
+        return new TableSessionUserResult()
+        {
+            IsWon = winner.IsUser,
+            Score = UserPlayer.ScoreHandler.CurrentScore,
+            EarnedMoney = winner.IsUser ? Data.BetAmount * _players.Length : 0
+        };
     }
+}
+
+public class TableSessionUserResult
+{
+    public bool IsWon;
+    public int Score;
+    public int EarnedMoney;
 }

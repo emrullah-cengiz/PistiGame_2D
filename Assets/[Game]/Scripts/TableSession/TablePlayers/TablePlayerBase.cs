@@ -6,12 +6,12 @@ using VContainer.Unity;
 public abstract class TablePlayerBase
 {
     [Inject] protected readonly TableSession _tableSession;
+    [Inject] public PlayerScoreHandler ScoreHandler { get; private set; }
     
     public TablePlayerView View { get; private set; }
     public CardPile Hand { get; private set; }
     public CardPile CollectedPile { get; private set; }
-    
-    //PlayerScorehandler
+    public bool IsUser { get; }
 
     public virtual void Setup(TablePlayerView view)
     {

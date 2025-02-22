@@ -23,7 +23,7 @@ public class BotPlayer : TablePlayerBase
     private CardData GetBestCardToPlay()
     {
         if (_tableSession.DiscardPile.HasAnyCard &&
-            (Hand.HasAny(_tableSession.DiscardPile.LastAddedCard.Value, out var card) ||
+            (Hand.HasAny(_tableSession.DiscardPile.LastAddedCard!.Value.Value, out var card) ||
              Hand.HasAnyJack(out card)))
             return card!.Value;
 

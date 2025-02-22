@@ -9,7 +9,11 @@ public class UserPlayer : TablePlayerBase
 
         Event.OnCardSelected += OnCardSelected;
         
-        return await _cardSelectionTask.Task;
+        var cardToDiscard = await _cardSelectionTask.Task;
+        
+        await Hand.TransferTo(_tableSession.DiscardPile, cardToDiscard, CardTransferOptions.Default);
+
+        return cardToDiscard;
     }
 
     private void OnCardSelected(CardData card)

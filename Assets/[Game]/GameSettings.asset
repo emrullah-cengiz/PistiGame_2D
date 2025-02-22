@@ -26,17 +26,9 @@ MonoBehaviour:
       BetRange: {x: 50000, y: 1000000}
       Color: {r: 0, g: 0, b: 0, a: 0}
   TableSessionSettings:
-    ScoreActions:
+    ScoreActionPoints:
       _keys: 00000000010000000200000003000000
       _values: 140000000a0000000300000003000000
-    HandLength: 4
-    WaitDurationBeforeStartDiscards: 0.3
-    WaitDurationBeforeCardDealing: 0.2
-    WaitDurationBetweenDealingCards: 0.2
-    WaitDurationBeforePlayLoopStart: 0.5
-  CardSettings:
-    CardPrefab: {fileID: 3799852056022506435, guid: c8516a05a19ea0f439534b3061fd4720, type: 3}
-    ClosedCardSprite: {fileID: -32750543, guid: 1c0fbff9874c4f346ad89e6d2fc80359, type: 3}
     OrderedSpecialCardPoints:
       _keys:
       - Type: 1
@@ -60,6 +52,14 @@ MonoBehaviour:
       - Type: 3
         Value: 1
       _values: 03000000020000000100000001000000010000000100000001000000010000000100000001000000
+    HandLength: 4
+    WaitDurationBeforeStartDiscards: 0.3
+    WaitDurationBeforeCardDealing: 0.2
+    WaitDurationBetweenDealingCards: 0.2
+    WaitDurationBeforePlayLoopStart: 0.5
+  CardSettings:
+    CardPrefab: {fileID: 3799852056022506435, guid: c8516a05a19ea0f439534b3061fd4720, type: 3}
+    ClosedCardSprite: {fileID: -32750543, guid: 1c0fbff9874c4f346ad89e6d2fc80359, type: 3}
     CardDataSprites:
       _keys:
       - Type: 0

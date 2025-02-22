@@ -19,7 +19,6 @@ public class CardSettings
     public CardView CardPrefab;
     public Sprite ClosedCardSprite;
     
-    [Space] public CardValueIntDictionary OrderedSpecialCardPoints;
     [Space] public CardDataSpriteDictionary CardDataSprites;
     
     [Button(nameof(GenerateMissingKeyCombinations))]
@@ -48,7 +47,10 @@ public class LobbySettings
 [Serializable]
 public class TableSessionSettings
 {
-    public ScoreActionTypeIntDictionary ScoreActions;
+    public ScoreActionTypeIntDictionary ScoreActionPoints;
+    
+    [Space] 
+    public CardValueIntDictionary OrderedSpecialCardPoints;
 
     [Space]
     public int HandLength = 4;
@@ -76,4 +78,4 @@ public class CardValueIntDictionary : SerializableDictionary<CardData, int>
 {
 }
 
-public enum ScoreActionType { JackPisti, Pisti, CollectedNumberMajority, EqualCardNumberToWinner }
+public enum ScoreActionType { JackPisti, Pisti, CollectedCardNumberMajority, EqualCardNumberToWinner }
