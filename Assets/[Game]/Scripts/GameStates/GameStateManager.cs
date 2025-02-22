@@ -8,8 +8,7 @@ public enum GameState
 {
     GameLoading,
     Lobby,
-    Playing,
-    TableSessionEnd
+    TableSession,
 }
 
 public class GameStateManager : ITickable
@@ -18,8 +17,7 @@ public class GameStateManager : ITickable
 
     [Inject] private GameLoading_GameState _gameLoading_GameState;
     [Inject] private Lobby_GameState _lobby_GameState;
-    [Inject] private Playing_GameState _playing_GameState;
-    [Inject] private TableSessionEnd_GameState _tableSessionEnd_GameState;
+    [Inject] private TableSession_GameState _tableSessionGameState;
 
     public void Initialize()
     {
@@ -36,8 +34,7 @@ public class GameStateManager : ITickable
 
         _stateMachine.AddState(GameState.GameLoading, _gameLoading_GameState);
         _stateMachine.AddState(GameState.Lobby, _lobby_GameState);
-        _stateMachine.AddState(GameState.Playing, _playing_GameState);
-        _stateMachine.AddState(GameState.TableSessionEnd, _tableSessionEnd_GameState);
+        _stateMachine.AddState(GameState.TableSession, _tableSessionGameState);
 
         _stateMachine.SetStartState(GameState.GameLoading);
         _stateMachine.Init();

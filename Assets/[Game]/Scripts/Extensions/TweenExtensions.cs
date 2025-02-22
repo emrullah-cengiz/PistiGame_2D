@@ -9,7 +9,8 @@ public static class TweenExtensions
         Linear,
         EaseIn,
         EaseOut,
-        EaseInOut
+        EaseInOut,
+        EaseOutQuint
     }
 
     private static float ApplyEase(float t, EaseType ease)
@@ -20,6 +21,7 @@ public static class TweenExtensions
             EaseType.EaseIn => t * t,
             EaseType.EaseOut => 1 - (1 - t) * (1 - t),
             EaseType.EaseInOut => t < 0.5f ? 2 * t * t : 1 - Mathf.Pow(-2 * t + 2, 2) / 2,
+            EaseType.EaseOutQuint => 1 - Mathf.Pow(1 - t, 5),
             _ => t
         };
     }

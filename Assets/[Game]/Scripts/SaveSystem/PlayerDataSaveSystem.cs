@@ -15,7 +15,7 @@ public class PlayerDataSaveSystem
     private readonly DataSaveHandler<PlayerData> _playerDataHandler = new(GlobalVariables.PLAYER_DATA_FILE_NAME);
 
     #region Injects
-    [Inject] private readonly GameSettings _settings;
+    [Inject] private readonly PlayerSettings _playerSettings;
     #endregion
 
     public async UniTask Initialize()
@@ -37,6 +37,6 @@ public class PlayerDataSaveSystem
         new()
         {
             Name = "Player",
-            AccountBalance = _settings.PlayerStartMoney
+            AccountBalance = _playerSettings.PlayerStartMoney
         };
 }

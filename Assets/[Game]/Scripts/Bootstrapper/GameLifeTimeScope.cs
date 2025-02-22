@@ -3,7 +3,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class GameLifeTimeScope : LifetimeScope
+public class GameLifetimeScope : LifetimeScope
 {
     [SerializeField] private GameSettings _settings;
     
@@ -11,11 +11,14 @@ public class GameLifeTimeScope : LifetimeScope
     {
         base.Configure(builder);
         
-        //Utilities
-        builder.Register<DataSaveHandler<PlayerData>>(Lifetime.Transient).AsSelf();
-        
         //Settings
-        builder.RegisterInstance(_settings).AsSelf();
+        builder.RegisterInstance(_settings.PlayerSettings).AsSelf();
+        builder.RegisterInstance(_settings.LobbySettings).AsSelf();
+        builder.RegisterInstance(_settings.CardSettings).AsSelf();
+        builder.RegisterInstance(_settings.TableSessionSettings).AsSelf();
+        
+        //Other installers
+        builder.RegisterComponentInHierarchy<TableSessionLifetimeScopeInstaller>().AsSelf();
         
         //Bootstrapper
         builder.RegisterEntryPoint<GameBootstrapper>();
@@ -23,8 +26,7 @@ public class GameLifeTimeScope : LifetimeScope
         //Game States
         builder.Register<GameLoading_GameState>(Lifetime.Singleton).AsSelf();
         builder.Register<Lobby_GameState>(Lifetime.Singleton).AsSelf();
-        builder.Register<Playing_GameState>(Lifetime.Singleton).AsSelf();
-        builder.Register<TableSessionEnd_GameState>(Lifetime.Singleton).AsSelf();
+        builder.Register<TableSession_GameState>(Lifetime.Singleton).AsSelf();
 
         builder.Register<GameStateManager>(Lifetime.Singleton).AsSelf().AsImplementedInterfaces();
         
@@ -34,5 +36,5 @@ public class GameLifeTimeScope : LifetimeScope
         builder.Register<PlayerWallet>(Lifetime.Singleton).AsSelf();
 
     }
-
+    
 }

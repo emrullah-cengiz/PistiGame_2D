@@ -1,13 +1,17 @@
 using System;
 using NaughtyAttributes;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 [Serializable]
 public class RoomData
 {
-    public string Name;
+    // public string Id = Guid.NewGuid().ToString();
     
-    [MinMaxSlider(0, 1000000)] 
-    public Vector2Int BetRange;
+    public string Name;
+
+    [MinMaxSlider(0, 1000000)] public Vector2Int BetRange;
+
+    public Color Color;
 }

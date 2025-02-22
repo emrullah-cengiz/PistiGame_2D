@@ -16,5 +16,11 @@ public static class Event
     
     public static Action OnPlayerDataLoaded;
     public static Action OnPlayerDataChanged;
+    
+    //UI Events
+    public static Action<TableData> OnTableCreateButton_Click;
+    
+    //Table Session
+    public static Action<CardData> OnCardSelected;
 
 }
