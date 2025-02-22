@@ -13,7 +13,7 @@ namespace GAME.Utilities.StateMachine
         void OnExit();
         void OnUpdate();
 
-        void ChangeState(TStateEnum state);
+        void ChangeState(TStateEnum state, params object[] @params);
     }
 
     public abstract class StateBase<TStateEnum> : IState<TStateEnum> where TStateEnum : Enum
@@ -23,7 +23,7 @@ namespace GAME.Utilities.StateMachine
         public void Initialize(StateMachine<TStateEnum> stateMachine) => 
             StateMachine = stateMachine;
         
-        public virtual void OnEnter(object[] @params)
+        public virtual void OnEnter(params object[] @params)
         {
         }
 
@@ -35,8 +35,8 @@ namespace GAME.Utilities.StateMachine
         {
         }
         
-        public void ChangeState(TStateEnum state) => 
-            StateMachine.ChangeState(state);
+        public void ChangeState(TStateEnum state, params object[] @params) => 
+            StateMachine.ChangeState(state, @params);
     }
 
     public class StateMachine<TStateEnum> where TStateEnum : Enum
@@ -48,6 +48,7 @@ namespace GAME.Utilities.StateMachine
         private Dictionary<TStateEnum, IState<TStateEnum>> _states = new();
 
         public event Action<TStateEnum> OnStateChanged;
+        public event Action OnCompleted;
 
         public void AddState(TStateEnum stateType, IState<TStateEnum> state)
         {
@@ -73,16 +74,9 @@ namespace GAME.Utilities.StateMachine
                 Debug.LogWarning($"State {newStateType} not found!");
         }
 
-        public void Init()
-        {
-            ChangeState(_startState);
-        }
-
-        public void Update()
-        {
-            _currentState?.OnUpdate();
-        }
-
+        public void Init() => ChangeState(_startState);
+        public void Update() => _currentState?.OnUpdate();
         public void SetStartState(TStateEnum state) => _startState = state;
+        public void Complete() => OnCompleted?.Invoke();
     }
 }

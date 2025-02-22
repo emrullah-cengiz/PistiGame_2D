@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -19,8 +18,12 @@ public interface IInitializablePoolable
 
 public interface IInitializablePoolable<in TInitializationData> : IInitializablePoolable where TInitializationData : IPoolableInitializationData
 {
-    public void OnSpawned(TInitializationData data);
+    public void OnSpawned(TInitializationData data, params object[] additionalArgs);
 }
+// public interface IInitializablePoolable<in TInitializationData, in TData2> : IInitializablePoolable where TInitializationData : IPoolableInitializationData
+// {
+//     public void OnSpawned(TInitializationData data, TData2 );
+// }
 
 public interface IPool
 {
@@ -34,7 +37,7 @@ public interface IPool<TObject, in TEnum> : IPool where TObject : Component wher
 }
 
 public abstract class PoolGroup<TObject, TEnum> : IPool<TObject, TEnum> where TObject : Component
-    where TEnum : Enum
+                                                                        where TEnum : Enum
 {
     private readonly PoolSettings _poolSettings;
     private readonly Dictionary<TEnum, (Stack<TObject>, Transform)> _pools;
@@ -100,9 +103,9 @@ public abstract class PoolGroup<TObject, TEnum> : IPool<TObject, TEnum> where TO
         where TInitializationData : IPoolableInitializationData
     {
         var obj = Spawn(type, data);
-        
+
         cancellationTokenSource = new CancellationTokenSource();
-        
+
         DespawnDelayed(obj, type, despawnDelay, cancellationTokenSource).Forget();
 
         return obj;
@@ -245,7 +248,49 @@ public class Pool<TObject> : IPool where TObject : Component
         return obj;
     }
 
-    public void Despawn(TObject obj)
+    public TObject Spawn<TInitializationData>(TInitializationData data, params object[] additionalArgs) where TInitializationData : IPoolableInitializationData
+    {
+        var obj = Spawn();
+
+        if (obj is IInitializablePoolable<TInitializationData> initializable)
+            initializable.OnSpawned(data, additionalArgs);
+        else
+            Debug.LogError($"{typeof(TObject).Name} is not {typeof(IInitializablePoolable<TInitializationData>).Name}!");
+
+        return obj;
+    }
+    
+    // public TObject Spawn<TInitializationData>(TInitializationData data, params object[] args) where TInitializationData : IPoolableInitializationData
+    // {
+    //     var obj = Spawn();
+    //
+    //     if (obj is IInitializablePoolable<TInitializationData, TData2> initializable)
+    //         initializable.OnSpawned(data);
+    //     else
+    //         Debug.LogError($"{typeof(TObject).Name} is not {typeof(IInitializablePoolable<TInitializationData>).Name}!");
+    //
+    //     return obj;
+    // }
+
+    public void Despawn(TObject obj, float delay = 0)
+    {
+        if (delay > 0)
+        {
+            DespawnDelayed(obj, delay).Forget();
+            return;
+        }
+        
+        _Despawn(obj);
+    }
+
+    private async UniTask DespawnDelayed(TObject obj, float delay)
+    {
+        await UniTask.WaitForSeconds(delay);
+
+        _Despawn(obj);
+    }
+
+    private void _Despawn(TObject obj)
     {
         obj.gameObject.SetActive(false);
 
