@@ -12,7 +12,7 @@ public class LobbyUIPanel : UIPanel
 
     #region Injects
 
-    [Inject] private GameSettings _settings;
+    [Inject] private LobbySettings _lobbySettings;
     [Inject] private IObjectResolver _objectResolver;
 
     #endregion
@@ -26,10 +26,10 @@ public class LobbyUIPanel : UIPanel
 
     private async UniTask SetupRoomViews()
     {
-        var views = await InstantiateAsync(_roomUIViewPrefab, _settings.Rooms.Count, _roomLayoutGroup.transform);
+        var views = await InstantiateAsync(_roomUIViewPrefab, _lobbySettings.Rooms.Count, _roomLayoutGroup.transform);
 
         int i = 0;
-        foreach (var roomData in _settings.Rooms)
+        foreach (var roomData in _lobbySettings.Rooms)
         {
             var view = views[i];
             

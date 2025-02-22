@@ -26,6 +26,14 @@ public class RoomUIView : MonoBehaviour
     {
         Data = data;
 
+        _playBtn.onClick.AddListener(
+            () => Event.OnTableCreateButton_Click?.Invoke(new TableData()
+            {
+                RoomData = Data,
+                BetAmount = data.BetRange.x,
+                Mode = TableMode.TwoPlayers
+            }));
+
         UpdateView();
     }
 
