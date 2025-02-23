@@ -10,8 +10,6 @@ public class Lobby_GameState : GameStateBase
     private void ChangeToTableSessionState(TableData tableData) => 
         ChangeState(GameState.TableSession, tableData);
 
-    public override void OnExit()
-    {
+    public override void OnExit() => 
         Event.OnTableCreateButton_Click -= ChangeToTableSessionState;
-    }
 }

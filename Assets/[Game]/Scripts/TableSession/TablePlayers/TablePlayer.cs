@@ -3,15 +3,17 @@ using Cysharp.Threading.Tasks;
 using VContainer;
 using VContainer.Unity;
 
-public abstract class TablePlayerBase
+public abstract class TablePlayer
 {
     [Inject] protected readonly TableSession _tableSession;
-    [Inject] public PlayerScoreHandler ScoreHandler { get; private set; }
+    
+    public int CurrentScore { get; set; }
     
     public TablePlayerView View { get; private set; }
     public CardPile Hand { get; private set; }
     public CardPile CollectedPile { get; private set; }
-    public bool IsUser { get; }
+
+    public virtual bool IsUser => false;
 
     public virtual void Setup(TablePlayerView view)
     {

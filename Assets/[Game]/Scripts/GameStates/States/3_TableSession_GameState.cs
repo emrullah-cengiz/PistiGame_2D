@@ -5,6 +5,8 @@ using VContainer.Unity;
 
 public class TableSession_GameState : GameStateBase
 {
+    [Inject] private readonly PlayerWallet _playerWallet;
+    
     [Inject] private readonly GameLifetimeScope _lifetimeScope;
     [Inject] private readonly TableSessionLifetimeScopeInstaller _tableSessionLifetimeScopeInstaller;
 
@@ -12,20 +14,20 @@ public class TableSession_GameState : GameStateBase
 
     public override void OnEnter(params object[] @params)
     {
-        _tableSessionLifetimeScopeInstaller.SetScopeData((TableData)@params[0]);
-
-        _tableSessionScope = _lifetimeScope.CreateChild(_tableSessionLifetimeScopeInstaller,
-                                                        GlobalVariables.TABLE_SESSION_LIFE_TIME_SCOPE);
-
-        //Sub state machine will start immediately after build 
-        _tableSessionScope.Build();
+        Event.OnTableSessionStart?.Invoke();
         
-        _tableSessionLifetimeScopeInstaller.InjectAdditionalTableObjects();
+        var data = (TableData)@params[0];
+
+        //charge bet amount
+        if(!_playerWallet.TryDecreaseBalance(data.BetAmount))
+            return;
         
+        BuildTableSessionLifetimeScope(data);
+
         Event.OnTableSessionEnd += OnTableSessionEnd;
     }
 
-    private void OnTableSessionEnd()
+    private void OnTableSessionEnd(TableSessionUserResultData result)
     {
         Object.Destroy(_tableSessionScope);
 
@@ -33,4 +35,15 @@ public class TableSession_GameState : GameStateBase
     }
 
     public override void OnExit() => Event.OnTableSessionEnd -= OnTableSessionEnd;
+
+    private void BuildTableSessionLifetimeScope(TableData data)
+    {
+        _tableSessionLifetimeScopeInstaller.SetScopeData(data);
+
+        _tableSessionScope = _lifetimeScope.CreateChild(_tableSessionLifetimeScopeInstaller,
+                                                        GlobalVariables.TABLE_SESSION_LIFE_TIME_SCOPE);
+
+        //Sub state machine will start immediately after build 
+        _tableSessionScope.Build();
+    }
 }

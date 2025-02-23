@@ -5,7 +5,7 @@ using MBehaviourTree;
 using NUnit.Framework;
 using VContainer;
 
-public class BotPlayer : TablePlayerBase
+public class BotPlayer : TablePlayer
 {
     // private BotPlayerAI _behaviourTree;
     [Inject] private readonly IObjectResolver _objectResolver;

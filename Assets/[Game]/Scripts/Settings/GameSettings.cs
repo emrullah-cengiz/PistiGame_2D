@@ -14,25 +14,6 @@ public class GameSettings : ScriptableObject
 }
 
 [Serializable]
-public class CardSettings
-{
-    public CardView CardPrefab;
-    public Sprite ClosedCardSprite;
-    
-    [Space] public CardDataSpriteDictionary CardDataSprites;
-    
-    [Button(nameof(GenerateMissingKeyCombinations))]
-    void GenerateMissingKeyCombinations()
-    {
-        CardData missingKey;
-        foreach (var cardType in (CardType[])Enum.GetValues(typeof(CardType)))
-        foreach (var cardValue in (CardValue[])Enum.GetValues(typeof(CardValue)))
-            if (!CardDataSprites.ContainsKey(missingKey = new CardData(cardType, cardValue)))
-                 CardDataSprites.Add(missingKey, null);
-    }
-}
-
-[Serializable]
 public class PlayerSettings
 {
     public int PlayerStartMoney = 10000;
@@ -64,18 +45,22 @@ public class TableSessionSettings
 }
 
 [Serializable]
-public class ScoreActionTypeIntDictionary : SerializableDictionary<ScoreActionType, int>
+public class CardSettings
 {
+    public CardView CardPrefab;
+    public Sprite ClosedCardSprite;
+    
+    [Space] public CardDataSpriteDictionary CardDataSprites;
+    
+    [Button(nameof(GenerateMissingKeyCombinations))]
+    void GenerateMissingKeyCombinations()
+    {
+        CardData missingKey;
+        foreach (var cardType in (CardType[])Enum.GetValues(typeof(CardType)))
+        foreach (var cardValue in (CardValue[])Enum.GetValues(typeof(CardValue)))
+            if (!CardDataSprites.ContainsKey(missingKey = new CardData(cardType, cardValue)))
+                CardDataSprites.Add(missingKey, null);
+    }
 }
 
-[Serializable]
-public class CardDataSpriteDictionary : SerializableDictionary<CardData, Sprite>
-{
-}
 
-[Serializable]
-public class CardValueIntDictionary : SerializableDictionary<CardData, int>
-{
-}
-
-public enum ScoreActionType { JackPisti, Pisti, CollectedCardNumberMajority, EqualCardNumberToWinner }

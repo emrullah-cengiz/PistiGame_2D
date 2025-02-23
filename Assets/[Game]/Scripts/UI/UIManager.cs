@@ -5,7 +5,7 @@ using NaughtyAttributes;
 using UnityEngine;
 using VContainer.Unity;
 
-public class UIManager : MonoBehaviour, IInitializable
+public class UIManager : MonoBehaviour
 {
     ///TODO: Dictionary 
     [SerializeField] private List<UIPanel> _uiPanels;
@@ -15,43 +15,13 @@ public class UIManager : MonoBehaviour, IInitializable
 
     private void OnEnable()
     {
-        Debug.Log("UIManager::OnEnable");
-        
-        Event.OnGameLoadingStart += OnGameLoadingStart;
         Event.OnEnterLobby += OnEnterLobby;
-        // Event.OnTableSessionStart += OnTableSessionStart;
+        Event.OnTableSessionStart += OnTableSessionStart;
     }
-
     private void OnDisable()
     {
-        Event.OnGameLoadingStart -= OnGameLoadingStart;
         Event.OnEnterLobby -= OnEnterLobby;
-    }
-    
-    public void Initialize()
-    {
-        
-    }
-
-//     private void Awake()
-//     {
-// #if UNITY_EDITOR
-//         foreach (var panel in _uiPanels) 
-//             panel.gameObject.SetActive(false);
-// #endif
-//     }
-
-    private void OnGameLoadingStart()
-    {
-        Debug.Log("Game loading..");
-        
-        ShowLoading();
-    }
-
-    private void OnEnterLobby()
-    {
-        HideLoading();
-        OpenPanel(UIPanelType.Lobby);
+        Event.OnTableSessionStart += OnTableSessionStart;
     }
 
     private void OpenPanel(UIPanelType type)
@@ -66,8 +36,8 @@ public class UIManager : MonoBehaviour, IInitializable
         _currentPanel.Initialize();
     }
 
-    private void ShowLoading() => _loadingPanel.Open(.3f);
-    private void HideLoading() => _loadingPanel.Close(.3f);
+    private void OnEnterLobby() => OpenPanel(UIPanelType.Lobby);
+    private void OnTableSessionStart() => OpenPanel(UIPanelType.Table);
 
     private UIPanel GetPanel(UIPanelType type)
     {
@@ -79,7 +49,6 @@ public class UIManager : MonoBehaviour, IInitializable
         
         return null;
     }
-
 }
 
 public enum UIPanelType

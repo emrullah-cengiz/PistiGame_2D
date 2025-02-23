@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 using Object = UnityEngine.Object;
 
 public interface IPoolableInitializationData
@@ -20,14 +22,9 @@ public interface IInitializablePoolable<in TInitializationData> : IInitializable
 {
     public void OnSpawned(TInitializationData data, params object[] additionalArgs);
 }
-// public interface IInitializablePoolable<in TInitializationData, in TData2> : IInitializablePoolable where TInitializationData : IPoolableInitializationData
-// {
-//     public void OnSpawned(TInitializationData data, TData2 );
-// }
 
 public interface IPool
 {
-    void Initialize();
 }
 
 public interface IPool<TObject, in TEnum> : IPool where TObject : Component where TEnum : Enum
@@ -214,20 +211,26 @@ public class PoolGroup<TEnum> : PoolGroup<Transform, TEnum> where TEnum : Enum
     }
 }
 
-public class Pool<TObject> : IPool where TObject : Component
+public class Pool<TObject> where TObject : Component
 {
-    private readonly PoolProperties _poolSettings;
-    private readonly Stack<TObject> _pool;
-    private Transform _parent;
+    [Inject] private readonly IObjectResolver _objectResolver;
 
-    public Pool(PoolProperties poolSettings)
+    private PoolProperties _poolSettings;
+    private Stack<TObject> _pool;
+
+    private Transform _parent;
+    //
+    // public Pool(PoolProperties poolSettings)
+    // {
+    //     _poolSettings = poolSettings;
+    //     _pool = new();
+    // }
+
+    public void Initialize(PoolProperties poolSettings)
     {
         _poolSettings = poolSettings;
         _pool = new();
-    }
 
-    public void Initialize()
-    {
         _parent = CreateParent($"Pool_{typeof(TObject).Name}");
 
         if (_poolSettings.FillOnInit)
@@ -259,18 +262,6 @@ public class Pool<TObject> : IPool where TObject : Component
 
         return obj;
     }
-    
-    // public TObject Spawn<TInitializationData>(TInitializationData data, params object[] args) where TInitializationData : IPoolableInitializationData
-    // {
-    //     var obj = Spawn();
-    //
-    //     if (obj is IInitializablePoolable<TInitializationData, TData2> initializable)
-    //         initializable.OnSpawned(data);
-    //     else
-    //         Debug.LogError($"{typeof(TObject).Name} is not {typeof(IInitializablePoolable<TInitializationData>).Name}!");
-    //
-    //     return obj;
-    // }
 
     public void Despawn(TObject obj, float delay = 0)
     {
@@ -279,7 +270,7 @@ public class Pool<TObject> : IPool where TObject : Component
             DespawnDelayed(obj, delay).Forget();
             return;
         }
-        
+
         _Despawn(obj);
     }
 
@@ -308,7 +299,9 @@ public class Pool<TObject> : IPool where TObject : Component
 
     private TObject Create(TObject prefab, Transform parent)
     {
-        var obj = Object.Instantiate(prefab, parent);
+        //Instantiate and Inject..
+        var obj = _objectResolver.Instantiate(prefab, parent);
+
         obj.gameObject.SetActive(false);
 
         if (obj is IInitializablePoolable initializable)

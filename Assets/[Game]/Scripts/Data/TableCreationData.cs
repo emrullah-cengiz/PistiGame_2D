@@ -4,9 +4,3 @@ public class TableData
     public int BetAmount { get; set; }
     public TableMode Mode { get; set; }
 }
-
-public enum TableMode
-{
-    TwoPlayers = 2,
-    FourPlayers = 4
-}

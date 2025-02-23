@@ -112,6 +112,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5392788967543055426, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
+      propertyPath: m_BlockingObjects
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7500881846284780801, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
       propertyPath: _panelType
       value: 1

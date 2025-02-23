@@ -14,7 +14,11 @@ public class CardPile
     public CardData? LastAddedCard => HasAnyCard ? Cards[^1] : null;
     public CardData? PreviousAddedCard => Cards.Count > 1 ? Cards[^2] : null;
 
-    public void Setup(CardPileView view) => View = view;
+    public void Setup(CardPileView view)
+    {
+        Cards = new List<CardData>();
+        View = view;
+    }
 
     public void SetCards(List<CardData> cards) => Cards = cards;
 
@@ -57,13 +61,7 @@ public class CardPile
         
         return total;
     }
-
-    public void LogPile(string pileName)
-    {
-#if UNITY_EDITOR
-        Debug.Log($"<color=yellow>{pileName}:</color> {string.Join(",", Cards.Select(c => c.ToString()))}");
-#endif
-    }
+    
 
     #region Card Queries
 
@@ -102,8 +100,15 @@ public class CardPile
 
         return anyNonSpecialCard ?? lowestSpecial!.Value;
     }
-
+    
     #endregion
+
+    public void LogPile(string pileName)
+    {
+#if UNITY_EDITOR
+        Debug.Log($"<color=yellow>{pileName}:</color> {string.Join(",", Cards.Select(c => c.ToString()))}");
+#endif
+    }
 }
 
 public struct CardTransferOptions

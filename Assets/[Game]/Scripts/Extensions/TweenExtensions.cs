@@ -4,28 +4,6 @@ using UnityEngine;
 
 public static class TweenExtensions
 {
-    public enum EaseType
-    {
-        Linear,
-        EaseIn,
-        EaseOut,
-        EaseInOut,
-        EaseOutQuint
-    }
-
-    private static float ApplyEase(float t, EaseType ease)
-    {
-        return ease switch
-        {
-            EaseType.Linear => t,
-            EaseType.EaseIn => t * t,
-            EaseType.EaseOut => 1 - (1 - t) * (1 - t),
-            EaseType.EaseInOut => t < 0.5f ? 2 * t * t : 1 - Mathf.Pow(-2 * t + 2, 2) / 2,
-            EaseType.EaseOutQuint => 1 - Mathf.Pow(1 - t, 5),
-            _ => t
-        };
-    }
-
     private static async UniTask TweenLerp(float duration, EaseType ease, Action<float> onUpdate)
     {
         float elapsedTime = 0f;
@@ -83,5 +61,33 @@ public static class TweenExtensions
 
         await TweenLerp(duration / 2, ease, t => transform.localScale = Vector3.Lerp(startScale, peakScale, t));
         await TweenLerp(duration / 2, ease, t => transform.localScale = Vector3.Lerp(peakScale, startScale, t));
+    }
+
+    public static async UniTask TWRotate(this Transform transform, Quaternion target, float duration, EaseType ease = EaseType.Linear)
+    {
+        var startRot = transform.rotation;
+        await TweenLerp(duration, ease, t => transform.rotation = Quaternion.Slerp(startRot, target, t));
+    }
+
+    private static float ApplyEase(float t, EaseType ease)
+    {
+        return ease switch
+        {
+            EaseType.Linear => t,
+            EaseType.EaseIn => t * t,
+            EaseType.EaseOut => 1 - (1 - t) * (1 - t),
+            EaseType.EaseInOut => t < 0.5f ? 2 * t * t : 1 - Mathf.Pow(-2 * t + 2, 2) / 2,
+            EaseType.EaseOutQuint => 1 - Mathf.Pow(1 - t, 5),
+            _ => t
+        };
+    }
+
+    public enum EaseType
+    {
+        Linear,
+        EaseIn,
+        EaseOut,
+        EaseInOut,
+        EaseOutQuint
     }
 }

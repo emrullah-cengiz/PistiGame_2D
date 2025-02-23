@@ -6,14 +6,14 @@ using VContainer;
 
 public class CardView : MonoBehaviour, IInitializablePoolable<CardData>, IPointerDownHandler
 {
-    public bool IsClosed { get; private set; }
+    [Inject] private readonly CardSettings _cardSettings;
+    [Inject] private readonly TableSession _tableSession;
 
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private BoxCollider2D _collider;
 
-    [Inject] private readonly CardSettings _cardSettings;
-
     private CardData Data;
+    private bool IsClosed;
 
     public void OnCreated() => _collider.enabled = false;
 
@@ -21,8 +21,7 @@ public class CardView : MonoBehaviour, IInitializablePoolable<CardData>, IPointe
     {
         Data = data;
 
-        if (additionalArgs.Length > 0)
-            IsClosed = (bool)additionalArgs[0];
+        IsClosed = additionalArgs.Length > 0 && (bool)additionalArgs[0];
 
         UpdateView();
     }
@@ -43,6 +42,13 @@ public class CardView : MonoBehaviour, IInitializablePoolable<CardData>, IPointe
 
     public void SetInteractable(bool value) => _collider.enabled = value;
 
-    public async UniTask MoveTo(Vector3 position) => 
+    public async UniTask MoveTo(Vector3 position)
+    {
+        _spriteRenderer.sortingOrder = _tableSession.NextCardSortingOrder;
+
         await transform.TWMove(position, .3f, TweenExtensions.EaseType.EaseOutQuint);
+    }
+
+    public async UniTask SetRotation(Quaternion rot) =>
+        await transform.TWRotate(rot, .3f, TweenExtensions.EaseType.EaseOutQuint);
 }

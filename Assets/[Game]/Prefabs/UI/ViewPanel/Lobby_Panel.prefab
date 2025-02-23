@@ -921,7 +921,7 @@ PrefabInstance:
       addedObject: {fileID: 2263051910331092436}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4262871848686101411, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
-      insertIndex: -1
+      insertIndex: 4
       addedObject: {fileID: 5052385850061104046}
   m_SourcePrefab: {fileID: 100100000, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
 --- !u!224 &858637364916885617 stripped
@@ -953,21 +953,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _panelType: 0
   _rectTransform: {fileID: 858637364916885617}
-  _bGImage: {fileID: 8500094193893256186}
+  _bGImage: {fileID: 0}
   _canvasGroup: {fileID: 3678565568508422358}
   _roomLayoutGroup: {fileID: 110591001494891581}
   _roomUIViewPrefab: {fileID: 379546966212686792, guid: 7feb7787eddde12488cd8ba609ec1cb1, type: 3}
---- !u!114 &8500094193893256186 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4498874926152133981, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
-  m_PrefabInstance: {fileID: 5447473505428539047}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8120433329474970884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &5788299821441583264
 PrefabInstance:
   m_ObjectHideFlags: 0

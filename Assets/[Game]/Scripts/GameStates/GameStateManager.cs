@@ -11,7 +11,7 @@ public enum GameState
     TableSession,
 }
 
-public class GameStateManager : ITickable
+public class GameStateManager
 {
     private StateMachine<GameState> _stateMachine;
 
@@ -44,11 +44,6 @@ public class GameStateManager : ITickable
     {
         Debug.Log($"Game state changing.. {_stateMachine.CurrentState} > {state}");
         Event.OnGameStateChanged?.Invoke(state);
-    }
-
-    public void Tick()
-    {
-        _stateMachine.Update();
     }
 }
 

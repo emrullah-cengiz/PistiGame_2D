@@ -28,7 +28,7 @@ public class ProfileInfoBox : MonoBehaviour, IStartable
         Event.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         Event.OnPlayerDataChanged -= OnPlayerDataChanged;
     }
-
+    
     public void Start() => RefreshView();
 
     private void OnPlayerDataLoaded() => RefreshView();

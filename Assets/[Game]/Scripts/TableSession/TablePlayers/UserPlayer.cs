@@ -1,8 +1,11 @@
 using Cysharp.Threading.Tasks;
 
-public class UserPlayer : TablePlayerBase
+public class UserPlayer : TablePlayer
 {
+    public override bool IsUser => true;
+    
     private UniTaskCompletionSource<CardData> _cardSelectionTask;
+    
     public override async UniTask<CardData> PlayCard()
     {
         _cardSelectionTask = new UniTaskCompletionSource<CardData>();

@@ -31,7 +31,7 @@ public class RoomUIView : MonoBehaviour
             {
                 RoomData = Data,
                 BetAmount = data.BetRange.x,
-                Mode = TableMode.TwoPlayers
+                Mode = TableMode.FourPlayers
             }));
 
         UpdateView();
