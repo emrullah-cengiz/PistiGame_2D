@@ -10,18 +10,28 @@ public class HandPileView : CardPileView
     [SerializeField] private float _totalWidth = 5f;
     [SerializeField] private float _maxAngle = 30f;
     
-    int totalCards = 4;
-    
-    protected override void GetCardTransform(int index, out Vector3 position, out Quaternion rotation)
+    [SerializeField] private float _pingPongFrequency = 0.5f;
+    [SerializeField] private float _pingPongAmplitude = 0.2f;
+
+    [Inject] private TableSessionSettings _settings;
+
+    private int handLength;
+
+    [Inject]
+    private void OnInject() => handLength = _settings.HandLength;
+
+    protected override (Vector3 pos, Vector3 angles) CalculateCardTransform(int index)
     {
-        float spacing = _totalWidth / (totalCards - 1);
+        float spacing = _totalWidth / (handLength - 1);
         float xPos = -_totalWidth / 2 + index * spacing;
         float curveFactor = 1 - Mathf.Pow((xPos / (_totalWidth / 2)), 2);
         float yPos = _arcHeight * curveFactor;
+        
+        float pingPongOffset = Mathf.PingPong(index * _pingPongFrequency, _pingPongAmplitude);
+        yPos += pingPongOffset; 
 
-        position = new Vector3(xPos, yPos, 0);
+        float angle = Mathf.Lerp(-_maxAngle, _maxAngle, (float)index / (handLength - 1));
 
-        float angle = Mathf.Lerp(-_maxAngle, _maxAngle, (float)index / (totalCards - 1));
-        rotation = Quaternion.Euler(0, 0, angle);
+        return (new Vector3(xPos, yPos, 0), new Vector3(0, 0, angle));
     }
 }

@@ -17,7 +17,7 @@ public struct CardData : IPoolableInitializationData, IEquatable<CardData>
 
     public bool CheckCard(CardValue val, CardType type) => Value == val && Type == type;
     public bool IsJack => Value == CardValue.Jack;
-    public override string ToString() => $"{Type} {Value}";
+    public override string ToString() => $"{Type.ToIconChar()} {Value}";
 
 
     public override bool Equals(object obj) => obj is CardData other && Equals(other);

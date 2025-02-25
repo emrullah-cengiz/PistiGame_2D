@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
+using Assets._Game.Scripts.View;
 using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 public class UIManager : MonoBehaviour
 {
-    ///TODO: Dictionary 
-    [SerializeField] private List<UIPanel> _uiPanels;
-    
+    [Inject] private PlayerDataSaveSystem _playerDataSaveSystem;
+
+    [SerializeField] private PanelTypeUIPanelDictionary _uiPanels;
+    [SerializeField] private PopupTypePopupDictionary _popups;
+
     [SerializeField] private UIPanel _loadingPanel;
     [SerializeField, ReadOnly] private UIPanel _currentPanel;
 
@@ -17,37 +21,76 @@ public class UIManager : MonoBehaviour
     {
         Event.OnEnterLobby += OnEnterLobby;
         Event.OnTableSessionStart += OnTableSessionStart;
+        Event.OnTableSessionGameEnd += OnTableSessionGameEnd;
+        Event.OnTableSessionEnd += OnTableSessionEnd;
+
+        Event.OnShowCreateTablePopup_Click += OnShowCreateTablePopup_Click;
+        Event.OnFirstHiddenDiscardedCardsCollectedByUser += OnFirstHiddenDiscardedCardsCollectedByUser;
+        Event.OnBackToLobbyBtn_Click += OnBackToLobbyBtnClick;
     }
+
     private void OnDisable()
     {
         Event.OnEnterLobby -= OnEnterLobby;
-        Event.OnTableSessionStart += OnTableSessionStart;
+        Event.OnTableSessionStart -= OnTableSessionStart;
+        Event.OnTableSessionGameEnd -= OnTableSessionGameEnd;
+        Event.OnTableSessionEnd -= OnTableSessionEnd;
+        Event.OnShowCreateTablePopup_Click -= OnShowCreateTablePopup_Click;
+        Event.OnFirstHiddenDiscardedCardsCollectedByUser -= OnFirstHiddenDiscardedCardsCollectedByUser;
     }
+
+    // private void Start()
+    // {
+    //     ((LobbyUIPanel)_uiPanels[UIPanelType.Lobby]).Initialize();
+    // }
 
     private void OpenPanel(UIPanelType type)
     {
-        if(_currentPanel)
+        if (_currentPanel)
             _currentPanel.Close();
 
-        _currentPanel = GetPanel(type);
+        _currentPanel = _uiPanels[type];
 
         _currentPanel.Open(0.1f);
-        
+
         _currentPanel.Initialize();
     }
 
     private void OnEnterLobby() => OpenPanel(UIPanelType.Lobby);
+
     private void OnTableSessionStart() => OpenPanel(UIPanelType.Table);
 
-    private UIPanel GetPanel(UIPanelType type)
+    private void OnBackToLobbyBtnClick()
     {
-        for (int i = 0; i < _uiPanels.Count; i++)
-        {
-            if (_uiPanels[i].PanelType == type)
-                return _uiPanels[i];
-        }
-        
-        return null;
+        var popup = (YesNoPopup)_popups[PopupType.WarningYesNo];
+        popup.Show(() => Event.OnTableSessionGameExit?.Invoke(), "Leave table?", "You will lose your wager.");
+    }
+
+    private void OnTableSessionGameEnd(TableSessionResultData result)
+    {
+        var popup = (TableSessionResultPopup)_popups[PopupType.TableSessionResult];
+        popup.Show(result, () => Event.OnBackToLobbyConfirmationBtn_Click?.Invoke());
+    }
+
+    private void OnTableSessionEnd() => OpenPanel(UIPanelType.Lobby);
+
+    //Popups
+    public void ShowProfilePopup()
+    {
+        var popup = (ProfileInfoPopup)_popups[PopupType.Profile];
+        popup.Show(_playerDataSaveSystem.Data);
+    }
+
+    private void OnShowCreateTablePopup_Click(RoomData data)
+    {
+        var popup = (CreateTablePopup)_popups[PopupType.CreateTable];
+        popup.Show(data, d => Event.OnCreateTableButton_Click?.Invoke(d));
+    }
+
+    private void OnFirstHiddenDiscardedCardsCollectedByUser(List<CardData> cards)
+    {
+        var popup = (FirstHiddenCardsPopup)_popups[PopupType.FirstHiddenCards];
+        popup.Show(cards, () => Event.OnFirstHiddenDiscardedCardsPanelClosed?.Invoke());
     }
 }
 
@@ -56,4 +99,13 @@ public enum UIPanelType
     Lobby,
     Loading,
     Table
+}
+
+public enum PopupType
+{
+    Profile,
+    CreateTable,
+    FirstHiddenCards,
+    TableSessionResult,
+    WarningYesNo,
 }

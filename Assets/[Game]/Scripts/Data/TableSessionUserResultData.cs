@@ -1,4 +1,4 @@
-public struct TableSessionUserResultData
+public struct TableSessionResultData
 {
     public bool IsWon;
     public int Score;

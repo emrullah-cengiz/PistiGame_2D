@@ -20,31 +20,44 @@ public class RoomUIView : MonoBehaviour
     private void OnEnable()
     {
         Event.OnPlayerDataChanged += OnPlayerDataChanged;
+        RefreshView();
+    }
+
+    private void OnDestroy()
+    {
+        Event.OnPlayerDataChanged -= OnPlayerDataChanged;
+        _createTableBtn.onClick.RemoveAllListeners();
+        _playBtn.onClick.RemoveAllListeners();
     }
 
     public void Initialize(RoomData data)
     {
         Data = data;
 
+        _createTableBtn.onClick.AddListener(() => Event.OnShowCreateTablePopup_Click?.Invoke(data));
+
         _playBtn.onClick.AddListener(
-            () => Event.OnTableCreateButton_Click?.Invoke(new TableData()
+            () => Event.OnCreateTableButton_Click?.Invoke(new TableData()
             {
                 RoomData = Data,
                 BetAmount = data.BetRange.x,
-                Mode = TableMode.FourPlayers
+                Mode = TableMode.TwoPlayers
             }));
 
-        UpdateView();
+        RefreshView();
     }
 
-    private void OnPlayerDataChanged() => UpdateView();
+    private void OnPlayerDataChanged() => RefreshView();
 
-    private void UpdateView()
+    private void RefreshView()
     {
+        if (_playerWallet == null) return;
+
         var hasEnoughMoney = _playerWallet.HasEnoughBalance(Data.BetRange.x);
 
         _nameText.text = Data.Name;
-        _betRangeText.text = $"{Data.BetRange.x} - {Data.BetRange.y}";
+        _betRangeText.text = $"{Data.BetRange.x.ToAbbreviated("$")} - " +
+                             $"{Data.BetRange.y.ToAbbreviated("$")}";
 
         _playBtn.interactable = hasEnoughMoney;
         _createTableBtn.interactable = hasEnoughMoney;

@@ -11,22 +11,13 @@ public class ScoreHandler
     {
         _tableSession = tableSession;
     }
-    
-    public void AddScoreToPlayerByDiscardedCard(int totalPilePoints, TablePlayer player, CardData lastDiscardedCard, CardData newDiscarded)
+
+    public void AddScoreToPlayerByDiscardedCard(int totalPilePoints, TablePlayer player, ScoreActionType? scoreAction)
     {
-        ScoreActionType scoreAction = default;
+        player.AddScore(totalPilePoints);
 
-        player.CurrentScore += totalPilePoints;
-
-        if (_tableSession.DiscardPile.Cards.Count == 1)
-            if (newDiscarded.Value == CardValue.Jack)
-                scoreAction = ScoreActionType.JackPisti;
-            else if (lastDiscardedCard.Value == newDiscarded.Value)
-                scoreAction = ScoreActionType.Pisti;
-            else
-                return;
-
-        player.CurrentScore += _tableSessionSettings.ScoreActionPoints[scoreAction];
+        if (scoreAction.HasValue)
+            player.AddScore(_tableSessionSettings.ScoreActionPoints[scoreAction.Value]);
     }
 
     /// <summary>
@@ -54,14 +45,14 @@ public class ScoreHandler
         int secMostCount = secondMostCardsPlayer.CollectedPile.Cards.Count;
 
         var collectedCardNumberBasedPointAmount = _tableSessionSettings.ScoreActionPoints[ScoreActionType.CollectedCardsNumberMajority];
-        
+
         if (mostCount > secMostCount)
-            mostCardsPlayer.CurrentScore += collectedCardNumberBasedPointAmount;
+            mostCardsPlayer.AddScore(collectedCardNumberBasedPointAmount);
         else if (mostCount == secMostCount)
-            winner.CurrentScore += collectedCardNumberBasedPointAmount;
+            winner.AddScore(collectedCardNumberBasedPointAmount);
     }
 
     public TablePlayer GetWinner() =>
-        _tableSession.Players.OrderByDescending(x => x.CurrentScore)
+        _tableSession.Players.OrderByDescending(x => x.TablePlayerData.Score)
                      .FirstOrDefault();
 }

@@ -25,8 +25,8 @@ public enum CardValue
 
 public enum TableMode
 {
-    TwoPlayers = 2,
-    FourPlayers = 4
+    TwoPlayers,
+    FourPlayers,
 }
 
 public enum ScoreActionType

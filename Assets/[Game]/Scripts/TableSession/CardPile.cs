@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -7,17 +8,19 @@ using VContainer;
 public class CardPile
 {
     [Inject] private readonly TableSessionSettings _tableSessionSettings;
+    [Inject] private readonly CardSettings _cardSettings;
 
     public CardPileView View { get; set; }
     public List<CardData> Cards { get; set; }
     public bool HasAnyCard => Cards.Count > 0;
     public CardData? LastAddedCard => HasAnyCard ? Cards[^1] : null;
-    public CardData? PreviousAddedCard => Cards.Count > 1 ? Cards[^2] : null;
+    public CardData? LastButOneCard => Cards.Count > 1 ? Cards[^2] : null;
 
     public void Setup(CardPileView view)
     {
         Cards = new List<CardData>();
         View = view;
+        View.Initialize();
     }
 
     public void SetCards(List<CardData> cards) => Cards = cards;
@@ -29,39 +32,34 @@ public class CardPile
         await View.AddCard(card, cardView, options);
     }
 
-    public async UniTask TransferTo(CardPile otherPile, int number, CardTransferOptions options)
-    {
-        for (var i = 0; i < number; i++)
-        {
-            var card = Cards[^1];
-
-            await TransferTo(otherPile, card, options);
-        }
-    }
-
     public async UniTask TransferTo(CardPile otherPile, CardData card, CardTransferOptions options)
     {
         Cards.Remove(card);
         var cardView = View.RemoveCard(card);
 
-        otherPile.AddCard(card, cardView, options).Forget();
+        var moveTask = otherPile.AddCard(card, cardView, options);
 
-        if (options.IsSequential)
-            await UniTask.WaitForSeconds(_tableSessionSettings.WaitDurationBetweenDealingCards);
+        if (options.WaitForCompletion)
+            await moveTask;
+        else
+            moveTask.Forget();
+    }
+
+    public async UniTask TransferTo(CardPile otherPile, int number, CardTransferOptions options)
+    {
+        bool waitForCompletion = options.WaitForCompletion;
+        for (var i = 0; i < number; i++)
+        {
+            options.WaitForCompletion = options.IsSequential;
+            await TransferTo(otherPile, Cards[^1], options);
+        }
+
+        //wait 1 delay if not sequential
+        if (!options.IsSequential && waitForCompletion)
+            await UniTask.WaitForSeconds(options.MoveDuration ?? _cardSettings.GeneralMoveDuration);
     }
 
     public async UniTask TransferAllTo(CardPile pile, CardTransferOptions options) => await TransferTo(pile, Cards.Count, options);
-
-    public int GetTotalPilePoints()
-    {
-        int total = 0;
-        for (var i = 0; i < Cards.Count; i++)
-            if (_tableSessionSettings.OrderedSpecialCardPoints.TryGetValue(Cards[i], out var point))
-                total += point;
-        
-        return total;
-    }
-    
 
     #region Card Queries
 
@@ -100,29 +98,59 @@ public class CardPile
 
         return anyNonSpecialCard ?? lowestSpecial!.Value;
     }
-    
+
     #endregion
 
-    public void LogPile(string pileName)
+    public int GetTotalPilePoints()
+    {
+        int total = 0;
+        for (var i = 0; i < Cards.Count; i++)
+            if (_tableSessionSettings.OrderedSpecialCardPoints.TryGetValue(Cards[i], out var point))
+                total += point;
+
+        return total;
+    }
+
+    public void SetCardsInteractable(bool s) => View.SetCardsInteractable(s);
+
+    public void LogPile(string message)
     {
 #if UNITY_EDITOR
-        Debug.Log($"<color=yellow>{pileName}:</color> {string.Join(",", Cards.Select(c => c.ToString()))}");
+        Debug.Log($"<color=yellow>{message}:</color> {string.Join(",", Cards.Select(c => c.ToString()))}");
 #endif
     }
 }
 
 public struct CardTransferOptions
 {
-    public static CardTransferOptions Default = new();
+    public static CardTransferOptions Default = new(
+        isClosed: false,
+        isSequential: true,
+        despawnView: false,
+        waitForCompletion: true,
+        moveDuration: null,
+        worldPositionStaysOnStart: true,
+        initialWorldTransform: null
+    );
 
-    public CardTransferOptions(bool isClosed = false, bool isSequential = true, bool despawnView = false)
+    public CardTransferOptions(bool isClosed = false, bool isSequential = true, bool despawnView = false, bool waitForCompletion = true,
+                               float? moveDuration = null, bool worldPositionStaysOnStart = true,
+                               (Vector3? pos, Vector3? angles, Vector3? scale)? initialWorldTransform = null)
     {
         IsClosed = isClosed;
         IsSequential = isSequential;
-        DespawnView = despawnView;
+        DespawnViewAfterCompletion = despawnView;
+        WaitForCompletion = waitForCompletion;
+        MoveDuration = moveDuration;
+        WorldPositionStaysOnStart = worldPositionStaysOnStart;
+        InitialWorldTransform = initialWorldTransform;
     }
 
     public bool IsClosed;
     public bool IsSequential;
-    public bool DespawnView;
+    public bool WaitForCompletion;
+    public bool DespawnViewAfterCompletion;
+    public bool WorldPositionStaysOnStart;
+    public float? MoveDuration;
+    public (Vector3? pos, Vector3? angles, Vector3? scale)? InitialWorldTransform;
 }

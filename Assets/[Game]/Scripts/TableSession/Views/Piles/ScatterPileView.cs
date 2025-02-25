@@ -8,16 +8,16 @@ using Random = UnityEngine.Random;
 public class ScatterPileView : CardPileView
 {
     [SerializeField] private float _scatterRange = 1f;
-    [SerializeField] private float _maxScatterAngle = 30f;
+    [SerializeField] private float _angleOffset = 30f;
+    [SerializeField] private int _maxLength = 8;
 
-    protected  override void GetCardTransform(int index, out Vector3 position, out Quaternion rotation)
+    protected override (Vector3 pos, Vector3 angles) CalculateCardTransform(int index)
     {
         float xOffset = Random.Range(-_scatterRange, _scatterRange);
         float yOffset = Random.Range(-_scatterRange, _scatterRange);
 
-        position = new Vector3(xOffset, yOffset, 0);
+        float angleOffset = Mathf.PingPong(index, _maxLength * 2) * _angleOffset;
 
-        float angleOffset = Mathf.PingPong(index * 10f, _maxScatterAngle * 2) - _maxScatterAngle;
-        rotation = Quaternion.Euler(0, 0, angleOffset);
+        return (new Vector3(xOffset, yOffset, 0), Vector3.forward * angleOffset);
     }
 }

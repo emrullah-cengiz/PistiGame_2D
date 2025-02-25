@@ -1,6 +1,32 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+
+[CustomPropertyDrawer(typeof(PopupTypePopupDictionary))]
+public class PopupTypePopupDictionaryDrawer : DictionaryDrawerBase
+{
+}
+
+[CustomPropertyDrawer(typeof(PanelTypeUIPanelDictionary))]
+public class PanelTypeUIPanelDictionaryDrawer : DictionaryDrawerBase
+{
+}
+
+[CustomPropertyDrawer(typeof(ScoreActionTypeIntDictionary))]
+public class ScoreActionTypeIntDictionaryDrawer : DictionaryDrawerBase
+{
+}
+
+[CustomPropertyDrawer(typeof(CardDataSpriteDictionary))]
+public class CardDataSpriteDictionaryDrawer : DictionaryDrawerBase
+{
+}
+
+[CustomPropertyDrawer(typeof(CardValueIntDictionary))]
+public class CardValueIntDictionaryDrawer : DictionaryDrawerBase
+{
+}
+
 public class DictionaryDrawerBase : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

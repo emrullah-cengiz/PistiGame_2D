@@ -1,15 +1,16 @@
 using System;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 using VContainer;
 
 public class LobbyUIPanel : UIPanel
 {
     [SerializeField] private HorizontalLayoutGroup _roomLayoutGroup;
+    [SerializeField] private CarouselSliderController _roomsCarousel;
+    [SerializeField] private RoomUIView _roomViewPrefab;
     
-    [SerializeField, Space] private RoomUIView _roomUIViewPrefab;
-
     #region Injects
 
     [Inject] private LobbySettings _lobbySettings;
@@ -17,16 +18,16 @@ public class LobbyUIPanel : UIPanel
 
     #endregion
 
-    public override void Initialize()
+    public async void Start()
     {
-        base.Initialize();
-
-        SetupRoomViews().Forget();
+        await SetupRoomViews();
+        
+        _roomsCarousel.Setup();
     }
 
     private async UniTask SetupRoomViews()
     {
-        var views = await InstantiateAsync(_roomUIViewPrefab, _lobbySettings.Rooms.Count, _roomLayoutGroup.transform);
+        var views = await InstantiateAsync(_roomViewPrefab, _lobbySettings.Rooms.Count, _roomLayoutGroup.transform);
 
         int i = 0;
         foreach (var roomData in _lobbySettings.Rooms)

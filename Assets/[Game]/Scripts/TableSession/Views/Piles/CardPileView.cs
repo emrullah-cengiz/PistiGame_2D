@@ -1,15 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 using Random = UnityEngine.Random;
-
-public enum PileCardViewType
-{
-    Scattered,
-    Hand
-}
 
 public class CardPileView : MonoBehaviour
 {
@@ -18,9 +13,11 @@ public class CardPileView : MonoBehaviour
     //Holds only viewable cards
     private Dictionary<CardData, CardView> _cardViews;
 
-    private void Awake()
+    public void Initialize()
     {
-        _cardViews = new();
+        _cardViews ??= new();
+
+        Clear();
     }
 
     public async UniTask AddCard(CardData data, CardView cardView, CardTransferOptions options)
@@ -30,25 +27,27 @@ public class CardPileView : MonoBehaviour
 
         _cardViews.Add(data, cardView);
 
-        GetCardTransform(_cardViews.Count - 1, out var pos, out var rot);
-        cardView.SetRotation(rot).Forget();
-        await cardView.MoveTo(transform.position + pos);
+        var targetTransform = CalculateCardTransform(_cardViews.Count - 1);
+        cardView.transform.SetParent(transform, options.WorldPositionStaysOnStart);
+        cardView.transform.SetAsLastSibling();
+        
+        cardView.SetTransform(options.InitialWorldTransform);
 
-        if (options.DespawnView)
-            RemoveCard(data);
+        await cardView.MoveTo(targetTransform, isClosed: options.IsClosed, options.MoveDuration,
+                              options.InitialWorldTransform is { scale: not null });
+
+        if (options.DespawnViewAfterCompletion)
+            RemoveCard(data, despawn: true);
     }
 
-    protected virtual void GetCardTransform(int index, out Vector3 position, out Quaternion rotation)
-    {
-        position = transform.position;
-        rotation = Quaternion.identity;
-    }
+    protected virtual (Vector3 pos, Vector3 angles) CalculateCardTransform(int index) => (Vector3.zero, Vector3.zero);
 
-    public CardView RemoveCard(CardData card)
+    public CardView RemoveCard(CardData card, bool despawn = false)
     {
-        if (_cardViews.Remove(card, out var cardView))
+        _cardViews.Remove(card, out var cardView);
+
+        if (despawn)
             _pool.Despawn(cardView);
-
         return cardView;
     }
 
@@ -57,15 +56,24 @@ public class CardPileView : MonoBehaviour
     private void OnValidate()
     {
         _cardViews ??= new();
-        
+
         int i = 0;
         foreach (var card in _cardViews.Values)
-        {
-            GetCardTransform(i++, out var pos, out var rot);
-            card.SetRotation(rot).Forget();
-            card.MoveTo(transform.position + pos);
-        }
+            card.MoveTo(CalculateCardTransform(i++), false).Forget();
     }
 
 #endif
+
+    public void SetCardsInteractable(bool b)
+    {
+        foreach (var cardView in _cardViews.Values)
+            cardView.SetInteractable(b);
+    }
+
+    private void Clear()
+    {
+        var cardsToRemove = new List<CardData>(_cardViews.Keys);
+        foreach (var card in cardsToRemove)
+            RemoveCard(card, despawn: true);
+    }
 }

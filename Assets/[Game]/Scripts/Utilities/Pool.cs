@@ -211,7 +211,7 @@ public class PoolGroup<TEnum> : PoolGroup<Transform, TEnum> where TEnum : Enum
     }
 }
 
-public class Pool<TObject> where TObject : Component
+public class Pool<TObject> : IDisposable where TObject : Component
 {
     [Inject] private readonly IObjectResolver _objectResolver;
 
@@ -321,9 +321,11 @@ public class Pool<TObject> where TObject : Component
     {
         public TObject Prefab;
 
-        public bool FillOnInit = true;
+        public bool FillOnInit = false;
 
         public int ExpansionSize = 1;
         //..
     }
+
+    public void Dispose() => Object.Destroy(_parent.gameObject);
 }

@@ -10,6 +10,4 @@ public class RoomData
     public string Name;
 
     [MinMaxSlider(0, 1000000)] public Vector2Int BetRange;
-
-    public Color Color;
 }

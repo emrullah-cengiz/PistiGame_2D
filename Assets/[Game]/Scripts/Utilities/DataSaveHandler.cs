@@ -5,7 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class DataSaveHandler<T> where T : struct
+public class DataSaveHandler<T>
 {
     private readonly string SaveFilePath;
 
@@ -14,23 +14,23 @@ public class DataSaveHandler<T> where T : struct
         SaveFilePath = saveFilePath;
     }
 
-    public async UniTask<T?> Load()
+    public async UniTask<(bool status, T data)> Load()
     {
         try
         {
             var json = await File.ReadAllTextAsync(SaveFilePath);
 
-            var data = JsonUtility.FromJson<T?>(json);
-            if (data != null) 
-                return data;
+            if (string.IsNullOrWhiteSpace(json)) 
+                return (false, default);
             
-            Debug.LogError("Json deserialize failed, returning null. Json string: " + json);
-            return null;
+            var data = JsonUtility.FromJson<T>(json);
+
+            return (true, data);
         }
         catch (FileNotFoundException)
         {
             Debug.Log("Save file not found, returning null..");
-            return null;
+            return (false, default);
         }
     }
 

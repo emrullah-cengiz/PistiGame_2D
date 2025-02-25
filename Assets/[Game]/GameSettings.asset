@@ -18,13 +18,10 @@ MonoBehaviour:
     Rooms:
     - Name: New Bies
       BetRange: {x: 250, y: 5000}
-      Color: {r: 0, g: 0, b: 0, a: 0}
     - Name: Rookies
       BetRange: {x: 2500, y: 100000}
-      Color: {r: 0, g: 0, b: 0, a: 0}
     - Name: Nobles
       BetRange: {x: 50000, y: 1000000}
-      Color: {r: 0, g: 0, b: 0, a: 0}
   TableSessionSettings:
     ScoreActionPoints:
       _keys: 00000000010000000200000003000000
@@ -53,11 +50,13 @@ MonoBehaviour:
         Value: 1
       _values: 03000000020000000100000001000000010000000100000001000000010000000100000001000000
     HandLength: 4
-    WaitDurationBeforeStartDiscards: 0.3
-    WaitDurationBeforeCardDealing: 0.2
-    WaitDurationBetweenDealingCards: 0.2
+    WaitDurationBeforeDealingCards: 0.3
+    GeneralDelayBetweenCardsOnSequentialMoves: 0.05
+    BotWaitDurationBeforePlay: 0.1
     WaitDurationBeforePlayLoopStart: 0.5
+    WaitDurationBeforeResultPopup: 0.3
   CardSettings:
+    GeneralMoveDuration: 0.5
     CardPrefab: {fileID: 3799852056022506435, guid: c8516a05a19ea0f439534b3061fd4720, type: 3}
     ClosedCardSprite: {fileID: -32750543, guid: 1c0fbff9874c4f346ad89e6d2fc80359, type: 3}
     CardDataSprites:

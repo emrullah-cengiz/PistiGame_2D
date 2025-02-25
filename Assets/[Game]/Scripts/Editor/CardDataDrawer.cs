@@ -1,22 +1,6 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomPropertyDrawer(typeof(ScoreActionTypeIntDictionary))]
-public class ScoreActionTypeIntDictionaryDrawer : DictionaryDrawerBase
-{
-    
-}
-
-[CustomPropertyDrawer(typeof(CardDataSpriteDictionary))]
-public class CardDataSpriteDictionaryDrawer : DictionaryDrawerBase
-{
-}
-
-[CustomPropertyDrawer(typeof(CardValueIntDictionary))]
-public class CardValueIntDictionaryDrawer : DictionaryDrawerBase
-{
-}
-
 [CustomPropertyDrawer(typeof(CardData))]
 public class CardDataDrawer : PropertyDrawer
 {

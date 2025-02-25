@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -10,15 +11,12 @@ using Random = UnityEngine.Random;
 
 public class TableSession
 {
-    [Inject] private readonly TableView View;
-    [Inject] private readonly TableSessionSettings _tableSessionSettings;
+    [Inject] public readonly TableView View;
     [Inject] public ScoreHandler ScoreHandler { get; private set; }
+    [Inject] private readonly TableSessionSettings _tableSessionSettings;
     [Inject] private Pool<CardView> _pool;
     [Inject] private CardSettings _cardSettings;
     [Inject] private IObjectResolver _objectResolver;
-
-    private int _nextCardSortingOrder;
-    public int NextCardSortingOrder => _nextCardSortingOrder++;
 
     public CardPile DrawPile { get; private set; }
     public CardPile DiscardPile { get; private set; }
@@ -26,13 +24,23 @@ public class TableSession
     public UserPlayer UserPlayer;
     public TablePlayer[] Players;
 
+    private int _nextCardSortingOrder;
+    public int NextCardSortingOrder => _nextCardSortingOrder++;
+
     private TableData Data;
-    private bool _isFirstClosedCardsCollected;
-    private UniTaskCompletionSource _showFirstClosedCardsTask;
+    private bool _isFirstHiddenDiscardedCardsCollected;
+    private List<CardData> _firstHiddenDiscardedCards;
+
+    private UniTaskCompletionSource _showFirstHiddenDiscardedCardsTask;
+    private CancellationTokenSource _cancellationTokenSource;
 
     public void Setup(TableData data)
     {
-        Debug.Log("----TableSession_Setup -> Pool_Setup");
+        Debug.Log("TableSession_Setup");
+
+        Data = data;
+
+        View.Initialize(data);
 
         _pool.Initialize(new Pool<CardView>.PoolProperties()
         {
@@ -41,40 +49,45 @@ public class TableSession
             Prefab = _cardSettings.CardPrefab,
         });
 
-        Data = data;
+        ScoreHandler.Setup(this);
+
+        Event.OnTableInitialized?.Invoke(data);
 
         CreatePlayers();
 
         PreparePiles();
+
+        Event.OnBackToLobbyConfirmationBtn_Click += OnBackToLobbyConfirmationBtnClick;
     }
 
     private void CreatePlayers()
     {
-        int playerCount = (int)Data.Mode;
-        Players = new TablePlayer[playerCount];
+        Players = new TablePlayer[Data.Mode == TableMode.TwoPlayers ? 2 : 4];
 
-        Players[0] = UserPlayer = new UserPlayer();
-        UserPlayer.Setup(View.UserPlayerView);
+        UserPlayer = (UserPlayer)(Players[0] = SetupPlayer(0, new UserPlayer(), View.UserPlayerView));
 
-        for (int i = 1; i < playerCount; i++)
-        {
-            Players[i] = new BotPlayer();
+        for (var i = 0; i < View.ActiveBotViews.Length; i++)
+            Players[1 + i] = SetupPlayer(i + 1, new BotPlayer(), View.ActiveBotViews[i]);
+    }
 
-            var botViewIndex = (Data.Mode == TableMode.TwoPlayers) ? 2 : (i - 1);
-            if (botViewIndex < View.BotPlayerViews.Length) 
-                Players[i].Setup(View.BotPlayerViews[botViewIndex]);
-        }
+    private TablePlayer SetupPlayer(int index, TablePlayer player, TablePlayerView playerView)
+    {
+        _objectResolver.Inject(player);
+        player.Setup(index, playerView);
+        return player;
     }
 
     private void PreparePiles()
     {
+        _cancellationTokenSource = new CancellationTokenSource();
+
         DiscardPile = new CardPile();
-        DiscardPile.Setup(View.DiscardPileView);
         _objectResolver.Inject(DiscardPile);
-        
+        DiscardPile.Setup(View.DiscardPileView);
+
         DrawPile = new CardPile();
-        DrawPile.Setup(View.DrawPileView);
         _objectResolver.Inject(DrawPile);
+        DrawPile.Setup(View.DrawPileView);
 
         var cards = new List<CardData>();
 
@@ -92,88 +105,158 @@ public class TableSession
 
     public async UniTask DiscardFirstCards()
     {
+        _firstHiddenDiscardedCards = DrawPile.Cards.Take(3).ToList();
+
         await DrawPile.TransferTo(DiscardPile, 3, new(true));
         await DrawPile.TransferTo(DiscardPile, 1, CardTransferOptions.Default);
     }
 
     public async UniTask DealCardsToPlayers()
     {
-        foreach (var player in Players)
+        for (var i = 0; i < _tableSessionSettings.HandLength; i++)
         {
-            await DrawPile.TransferTo(player.Hand, _tableSessionSettings.HandLength, CardTransferOptions.Default);
-            await UniTask.WaitForSeconds(_tableSessionSettings.WaitDurationBetweenDealingCards);
+            foreach (var player in Players)
+            {
+                var options = new CardTransferOptions(
+                    isClosed: !player.IsUser,
+                    waitForCompletion: false,
+                    isSequential: false,
+                    worldPositionStaysOnStart: true,
+                    initialWorldTransform: new(
+                        DrawPile.View.transform.position, Vector3.zero, DrawPile.View.transform.localScale
+                    )
+                );
+
+                DrawPile.TransferTo(player.Hand, 1, options).Forget();
+                await UniTask.WaitForSeconds(_tableSessionSettings.GeneralDelayBetweenCardsOnSequentialMoves,
+                                             cancellationToken: _cancellationTokenSource.Token);
+            }
+
+            Event.OnDrawPileCardNUmberChanged?.Invoke(DrawPile.Cards.Count);
         }
     }
 
-    public async UniTask ProcessTurnLoopsUntilCardsExhausted()
+    public async UniTask ProcessTurnLoopsUntilHandsEmpty()
     {
-        do
+        while (Players[0].HasCard())
+        {
             foreach (var player in Players)
             {
                 if (!player.HasCard())
-                    return;
+                    continue;
+
+                player.SetTurn(true);
 
                 var card = await player.PlayCard();
+                //patch, some times can not wait the tween.. 
+                await UniTask.WaitForSeconds(_cardSettings.GeneralMoveDuration, cancellationToken: _cancellationTokenSource.Token);
 
-                var isCollected = await HandleDiscardPileCollection(card, player);
+                player.SetTurn(false);
 
-                if (!_isFirstClosedCardsCollected && isCollected && player.IsUser)
-                {
-                    _isFirstClosedCardsCollected = true;
-                    await ShowFirstClosedCardsToUser(DiscardPile.Cards.GetRange(0, 3));
-                }
+                if (!CanTheDiscardPileBeCollected(out ScoreActionType? collectionType))
+                    continue;
+
+#if UNITY_EDITOR
+                DiscardPile.LogPile("DISCARD_PILE_ON_COLLECT-" + player.TablePlayerData.Name);
+                player.View.LogCollection(DiscardPile.Cards);
+#endif
+
+                await CollectDiscardPile(player, collectionType);
+
+                await HandleFirstHiddenCardsShowing(player);
             }
-        while (Players[0].HasCard());
+        }
+
+        return;
+
+        bool CanTheDiscardPileBeCollected(out ScoreActionType? collectionType)
+        {
+            collectionType = null;
+
+            if (DiscardPile.Cards.Count < 2)
+                return false;
+
+            if (!DiscardPile.LastButOneCard.HasValue ||
+                (DiscardPile.LastButOneCard.Value.Value !=
+                 DiscardPile.LastAddedCard!.Value.Value &&
+                 DiscardPile.LastAddedCard!.Value.Value != CardValue.Jack))
+                return false;
+
+            //It's just collection with jack
+            if (DiscardPile.LastButOneCard.Value.Value !=
+                DiscardPile.LastAddedCard!.Value.Value) return true;
+
+            //It's Pisti
+            collectionType = ScoreActionType.Pisti;
+
+            //It's double Pisti
+            if (DiscardPile.LastAddedCard!.Value.IsJack)
+                collectionType = ScoreActionType.JackPisti;
+
+            return true;
+        }
+
+        async UniTask HandleFirstHiddenCardsShowing(TablePlayer player)
+        {
+            if (_isFirstHiddenDiscardedCardsCollected)
+                return;
+
+            _isFirstHiddenDiscardedCardsCollected = true;
+
+            if (!player.IsUser)
+                return;
+
+            await ShowFirstHiddenDiscardedCardsToUser(_firstHiddenDiscardedCards);
+        }
     }
 
-    private async UniTask<bool> HandleDiscardPileCollection(CardData card, TablePlayer player)
+    private async UniTask CollectDiscardPile(TablePlayer player, ScoreActionType? scoreAction)
     {
-        var lastDiscardedCard = DiscardPile.LastAddedCard;
-
-        if (!DiscardPile.HasAnyCard || (!card.IsJack && lastDiscardedCard!.Value.Value != card.Value))
-            return false;
-
         int totalPilePoints = DiscardPile.GetTotalPilePoints();
 
         //Collect discard pile
-        await DiscardPile.TransferAllTo(player.CollectedPile, new(isSequential: false, despawnView: true));
+        await DiscardPile.TransferAllTo(player.CollectedPile, new(isSequential: false, waitForCompletion: true, despawnView: true));
 
-        ScoreHandler.AddScoreToPlayerByDiscardedCard(totalPilePoints, player, lastDiscardedCard.Value, card);
-
-        return true;
+        ScoreHandler.AddScoreToPlayerByDiscardedCard(totalPilePoints, player, scoreAction);
     }
 
-    private async Task ShowFirstClosedCardsToUser(List<CardData> cards)
+    private async Task ShowFirstHiddenDiscardedCardsToUser(List<CardData> cards)
     {
-        Event.OnFirstClosedCardsCollectedByUser?.Invoke(cards);
-        
-        _showFirstClosedCardsTask = new UniTaskCompletionSource();
-        
-        Event.OnFirstClosedCardsPanelCloseBtn_Click += OnFirstClosedCardsPanelClosed; 
-        
-        await _showFirstClosedCardsTask.Task;
+        Event.OnFirstHiddenDiscardedCardsCollectedByUser?.Invoke(cards);
+        Debug.Log("<color=yellow>First closed cards collected by user, waiting for click ok button...</color>");
+
+        _showFirstHiddenDiscardedCardsTask = new UniTaskCompletionSource();
+        Event.OnFirstHiddenDiscardedCardsPanelClosed += OnFirstHiddenDiscardedCardsPanelClosed;
+
+        await _showFirstHiddenDiscardedCardsTask.Task;
+        return;
+
+        void OnFirstHiddenDiscardedCardsPanelClosed()
+        {
+            _showFirstHiddenDiscardedCardsTask.TrySetResult();
+            Event.OnFirstHiddenDiscardedCardsPanelClosed -= OnFirstHiddenDiscardedCardsPanelClosed;
+
+            Debug.Log("<color=yellow>First closed cards popup closed, continuing...</color>");
+        }
     }
 
-    private void OnFirstClosedCardsPanelClosed()
-    {
-        _showFirstClosedCardsTask.TrySetResult();
-        Event.OnFirstClosedCardsPanelCloseBtn_Click -= OnFirstClosedCardsPanelClosed;
-    }
-
-    public TableSessionUserResultData EndGame()
+    public TableSessionResultData EndGame()
     {
         var winner = ScoreHandler.GetWinner();
 
         ScoreHandler.AddScoreByCollectedCardsMajority(winner);
 
-        if (winner.IsUser)
-            return new TableSessionUserResultData()
-            {
-                IsWon = true,
-                Score = UserPlayer.CurrentScore,
-                EarnedMoney = Data.BetAmount * Players.Length
-            };
+        return new TableSessionResultData()
+        {
+            IsWon = winner.IsUser,
+            Score = UserPlayer.TablePlayerData.Score,
+            EarnedMoney = winner.IsUser ? Data.BetAmount * Players.Length : 0
+        };
+    }
 
-        return new TableSessionUserResultData();
+    private void OnBackToLobbyConfirmationBtnClick()
+    {
+        _cancellationTokenSource.Cancel();
+        Event.OnBackToLobbyConfirmationBtn_Click -= OnBackToLobbyConfirmationBtnClick;
     }
 }

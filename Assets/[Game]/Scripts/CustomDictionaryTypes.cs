@@ -2,6 +2,16 @@ using System;
 using UnityEngine;
 
 [Serializable]
+public class PanelTypeUIPanelDictionary : SerializableDictionary<UIPanelType, UIPanel>
+{
+}
+
+[Serializable]
+public class PopupTypePopupDictionary : SerializableDictionary<PopupType, PopUpBase>
+{
+}
+
+[Serializable]
 public class ScoreActionTypeIntDictionary : SerializableDictionary<ScoreActionType, int>
 {
 }

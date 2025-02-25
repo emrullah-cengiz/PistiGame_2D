@@ -56,4 +56,22 @@ public abstract class TableSessionStateBase : StateBase<TableSessionState>
     [Inject] protected readonly TableSessionSettings _tableSessionSettings;
     [Inject] protected readonly TableSession _tableSession;
     [Inject] protected readonly TableData _tableData;
+    
+    [Inject] protected readonly PlayerDataSaveSystem _saveSystem;
+
+    public override void OnEnter(params object[] @params)
+    {
+        base.OnEnter(@params);
+        
+        Event.OnTableSessionGameExit += OnTableSessionGameExit;
+    }
+    
+    private async void OnTableSessionGameExit()
+    {
+        Event.OnTableSessionGameExit -= OnTableSessionGameExit;
+        
+        await _saveSystem.SaveGameResult(default);
+        
+        Event.OnTableSessionEnd?.Invoke();
+    }
 }

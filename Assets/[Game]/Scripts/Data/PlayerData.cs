@@ -10,3 +10,12 @@ public struct PlayerData
     public int WinCount;
     public int LostCount;
 }
+
+
+[Serializable]
+public struct TablePlayerData
+{
+    public int PlayerIndex;
+    public string Name;
+    public int Score;
+}

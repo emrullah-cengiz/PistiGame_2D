@@ -36,17 +36,17 @@ public class TableSessionSettings
     [Space]
     public int HandLength = 4;
 
-    public float WaitDurationBeforeStartDiscards = .3f;
-
-    public float WaitDurationBeforeCardDealing = .3f;
-    public float WaitDurationBetweenDealingCards = .2f;
-
+    public float WaitDurationBeforeDealingCards = .3f;
+    public float GeneralDelayBetweenCardsOnSequentialMoves = .2f;
+    public float BotWaitDurationBeforePlay = .2f;
     public float WaitDurationBeforePlayLoopStart = .5f;
+    public float WaitDurationBeforeResultPopup = .3f;
 }
 
 [Serializable]
 public class CardSettings
 {
+    public float GeneralMoveDuration = .25f;
     public CardView CardPrefab;
     public Sprite ClosedCardSprite;
     

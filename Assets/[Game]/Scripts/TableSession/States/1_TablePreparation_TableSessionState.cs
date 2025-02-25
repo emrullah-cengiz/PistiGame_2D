@@ -8,8 +8,6 @@ public class TablePreparation_TableSessionState : TableSessionStateBase
     {
         _tableSession.Setup(_tableData);
         
-        await UniTask.WaitForSeconds(_tableSessionSettings.WaitDurationBeforeStartDiscards);
-        
         ChangeState(TableSessionState.SessionStart);
     }
 }
