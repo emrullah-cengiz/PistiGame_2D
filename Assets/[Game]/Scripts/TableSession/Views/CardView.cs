@@ -54,8 +54,7 @@ public class CardView : MonoBehaviour, IInitializablePoolable<CardData>, IPointe
 
     private CancellationTokenSource _cts;
 
-    public async UniTask MoveTo((Vector3 pos, Vector3 angles) target, bool isClosed, float? duration = null, bool tweenToDefaultScale = false,
-                                CancellationTokenSource cts = null)
+    public async UniTask MoveTo((Vector3 pos, Vector3 angles, Vector3 scale) target, bool isClosed, float? duration = null, CancellationTokenSource cts = null)
     {
         _cts?.Cancel();
         _cts = cts ?? new CancellationTokenSource();
@@ -66,9 +65,11 @@ public class CardView : MonoBehaviour, IInitializablePoolable<CardData>, IPointe
 
         var moveDuration = duration ?? _cardSettings.GeneralMoveDuration;
 
-        if (tweenToDefaultScale)
-            transform.TWScale(_defaultScale, moveDuration, TweenExtensions.EaseType.EaseOutQuint, _cts).Forget();
+        //Shortest rotation for opposite direction
+        if (Mathf.Abs(Mathf.DeltaAngle(transform.localEulerAngles.z, target.angles.z)) > 90)
+            target.angles.z += 180;
 
+        transform.TWScale(target.scale, moveDuration, TweenExtensions.EaseType.EaseOutQuint, _cts).Forget();
         transform.TWLocalRotate(target.angles, moveDuration, TweenExtensions.EaseType.EaseOutQuint, _cts).Forget();
         await transform.TWLocalMove(target.pos, moveDuration, TweenExtensions.EaseType.EaseOutQuint, _cts);
     }

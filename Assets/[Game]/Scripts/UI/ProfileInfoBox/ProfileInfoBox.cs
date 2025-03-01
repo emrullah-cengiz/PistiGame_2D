@@ -42,6 +42,6 @@ public class ProfileInfoBox : MonoBehaviour, IStartable
         var data = _saveSystem.Data;
 
         _playerName.text = data.Name;
-        _accountBalance.text = data.AccountBalance.ToAbbreviated("$");
+        _accountBalance.text = data.AccountBalance.ToAbbreviated();
     }
 }

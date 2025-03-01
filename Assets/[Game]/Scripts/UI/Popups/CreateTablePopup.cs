@@ -34,8 +34,8 @@ public class CreateTablePopup : InfoPopup
         _roomData = roomData;
         _callback = callback;
 
-        _minBetAmountText.text = _roomData.BetRange.x.ToAbbreviated("$");
-        _maxBetAmountText.text = _roomData.BetRange.y.ToAbbreviated("$");
+        _minBetAmountText.text = _roomData.BetRange.x.ToAbbreviated(" $");
+        _maxBetAmountText.text = _roomData.BetRange.y.ToAbbreviated(" $");
 
         _betAmountSlider.onValueChanged.AddListener(OnSliderValueChanged);
     }
@@ -44,7 +44,7 @@ public class CreateTablePopup : InfoPopup
     {
         okBtn.interactable = _playerWallet.HasEnoughBalance((int)value);
 
-        _sliderValueText.text = ((int)value).ToAbbreviated("$");
+        _sliderValueText.text = ((int)value).ToAbbreviated(" $");
     }
 
     protected override void OkBtn_Click()

@@ -11,13 +11,13 @@ public class ScatterPileView : CardPileView
     [SerializeField] private float _angleOffset = 30f;
     [SerializeField] private int _maxLength = 8;
 
-    protected override (Vector3 pos, Vector3 angles) CalculateCardTransform(int index)
+    protected override (Vector3 pos, Vector3 angles, Vector3 scale) CalculateCardTransform(int index)
     {
         float xOffset = Random.Range(-_scatterRange, _scatterRange);
         float yOffset = Random.Range(-_scatterRange, _scatterRange);
 
         float angleOffset = Mathf.PingPong(index, _maxLength * 2) * _angleOffset;
 
-        return (new Vector3(xOffset, yOffset, 0), Vector3.forward * angleOffset);
+        return (new Vector3(xOffset, yOffset, 0), Vector3.forward * angleOffset ,Vector3.one * CardScale);
     }
 }

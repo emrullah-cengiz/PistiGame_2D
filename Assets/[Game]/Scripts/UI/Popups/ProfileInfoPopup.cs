@@ -26,7 +26,7 @@ public class ProfileInfoPopup : InfoPopup
     private void RefreshView()
     {
         _playerName.text = _data.Name;
-        _accountBalance.text = _data.AccountBalance.ToAbbreviated("$");
+        _accountBalance.text = _data.AccountBalance.ToAbbreviated(" $");
         _winCount.text = _data.WinCount.ToString();
         _lostCount.text = _data.LostCount.ToString();
     }

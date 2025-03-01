@@ -1,16 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using NaughtyAttributes;
+using System.IO;
+using System.Linq;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEditor;
 
 [CreateAssetMenu(fileName = nameof(GameSettings), menuName = "Settings/" + nameof(GameSettings), order = 0)]
-public class GameSettings : ScriptableObject
+public class GameSettings : SerializedScriptableObject
 {
-    public PlayerSettings PlayerSettings;
-    [Space] public LobbySettings LobbySettings;
-    [Space] public TableSessionSettings TableSessionSettings;
-    [Space] public CardSettings CardSettings;
+    [OdinSerialize, NonSerialized] public PlayerSettings PlayerSettings;
+    [Space, OdinSerialize, NonSerialized] public LobbySettings LobbySettings;
+    [Space, OdinSerialize, NonSerialized] public TableSessionSettings TableSessionSettings;
+    [Space, OdinSerialize, NonSerialized] public CardSettings CardSettings;
 }
 
 [Serializable]
@@ -28,13 +31,11 @@ public class LobbySettings
 [Serializable]
 public class TableSessionSettings
 {
-    public ScoreActionTypeIntDictionary ScoreActionPoints;
-    
-    [Space] 
-    public CardValueIntDictionary OrderedSpecialCardPoints;
+    public Dictionary<ScoreActionType, int> ScoreActionPoints;
 
-    [Space]
-    public int HandLength = 4;
+    [Space, OdinSerialize, NonSerialized] public Dictionary<CardData, int> OrderedSpecialCardPoints;
+
+    [Space] public int HandLength = 4;
 
     public float WaitDurationBeforeDealingCards = .3f;
     public float GeneralDelayBetweenCardsOnSequentialMoves = .2f;
@@ -47,20 +48,46 @@ public class TableSessionSettings
 public class CardSettings
 {
     public float GeneralMoveDuration = .25f;
+
     public CardView CardPrefab;
     public Sprite ClosedCardSprite;
-    
-    [Space] public CardDataSpriteDictionary CardDataSprites;
-    
-    [Button(nameof(GenerateMissingKeyCombinations))]
-    void GenerateMissingKeyCombinations()
+
+    [Space] public Dictionary<CardData, Sprite> CardDataSprites;
+
+    [Space, FolderPath, SerializeField] private string CardSpritesPath;
+
+    [Button(nameof(ReadCardSpritesFromFolder))]
+    private void ReadCardSpritesFromFolder()
     {
-        CardData missingKey;
+        (CardDataSprites ??= new()).Clear();
+
         foreach (var cardType in (CardType[])Enum.GetValues(typeof(CardType)))
         foreach (var cardValue in (CardValue[])Enum.GetValues(typeof(CardValue)))
-            if (!CardDataSprites.ContainsKey(missingKey = new CardData(cardType, cardValue)))
-                CardDataSprites.Add(missingKey, null);
+        {
+            var cardTypeChar = cardType switch
+            {
+                CardType.Diamonds => 'd',
+                CardType.Spades => 's',
+                CardType.Hearts => 'h',
+                CardType.Clubs => 'c',
+                _ => '\0'
+            };
+
+            string path = Path.Combine(CardSpritesPath, cardType.ToString(), $"{(int)cardValue}{cardTypeChar}.png");
+
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+            CardDataSprites.Add(new(cardType, cardValue), sprite);
+        }
     }
+
+    // [NaughtyAttributes.Button(nameof(GenerateMissingKeyCombinations))]
+    // void GenerateMissingKeyCombinations()
+    // {
+    //     CardData missingKey;
+    //     foreach (var cardType in (CardType[])Enum.GetValues(typeof(CardType)))
+    //     foreach (var cardValue in (CardValue[])Enum.GetValues(typeof(CardValue)))
+    //         if (!CardDataSprites.ContainsKey(missingKey = new CardData(cardType, cardValue)))
+    //             CardDataSprites.Add(missingKey, null);
+    // }
 }
-
-

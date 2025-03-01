@@ -16,7 +16,7 @@ public static class Extensions
             (list[i], list[j]) = (list[j], list[i]);
         }
     }
-    public static string ToAbbreviated(this int num, string currencyPrefix = "", [CanBeNull] string prefixColor = "#a0ffa8")
+    public static string ToAbbreviated(this int num, string currencyPrefix = "", [CanBeNull] string prefixColor = "#71FB80")
     {
         float value = num;
         string suffix = "";

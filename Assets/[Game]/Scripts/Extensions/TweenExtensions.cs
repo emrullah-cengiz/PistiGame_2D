@@ -62,8 +62,10 @@ public static class TweenExtensions
     public static async UniTask TWLocalRotate(this Transform transform, Vector3 target, float duration, EaseType ease = EaseType.Linear,
                                               CancellationTokenSource cts = null)
     {
-        var startRot = transform.localEulerAngles;
-        await TweenLerp(duration, ease, t => transform.localRotation = Quaternion.Euler(Vector3.Slerp(startRot, target, t)), cts);
+        Quaternion startRot = transform.localRotation;
+        Quaternion targetRot = Quaternion.Euler(target);
+
+        await TweenLerp(duration, ease, t => transform.localRotation = Quaternion.Slerp(startRot, targetRot, t), cts);
     }
 
     public static async UniTask TWScale(this Transform transform, Vector3 target, float duration, EaseType ease = EaseType.Linear,

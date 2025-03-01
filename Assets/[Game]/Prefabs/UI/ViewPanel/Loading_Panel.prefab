@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Loading_Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 4262871848686101411, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4498874926152133981, guid: 4cedf67c106981f40a5113f3eccc9f4b, type: 3}
       propertyPath: m_Color.a
       value: 1

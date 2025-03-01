@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 using Assets._Game.Scripts.View;
-using Cysharp.Threading.Tasks;
-using NaughtyAttributes;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
+using Sirenix.Serialization;
+using Sirenix.OdinInspector;
 
-public class UIManager : MonoBehaviour
+public class UIManager : SerializedMonoBehaviour
 {
     [Inject] private PlayerDataSaveSystem _playerDataSaveSystem;
 
-    [SerializeField] private PanelTypeUIPanelDictionary _uiPanels;
-    [SerializeField] private PopupTypePopupDictionary _popups;
+    [NonSerialized, OdinSerialize] private Dictionary<UIPanelType, UIPanel> _uiPanels;
+    [NonSerialized, OdinSerialize] private Dictionary<PopupType, PopUpBase> _popups;
 
     [SerializeField] private UIPanel _loadingPanel;
-    [SerializeField, ReadOnly] private UIPanel _currentPanel;
+    [SerializeField, Sirenix.OdinInspector.ReadOnly] private UIPanel _currentPanel;
 
     private void OnEnable()
     {

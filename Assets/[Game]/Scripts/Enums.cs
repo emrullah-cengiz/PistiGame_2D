@@ -1,3 +1,11 @@
+public enum PileType
+{
+    DrawPile,
+    DiscardPile,
+    HandPile,
+    CollectionPile
+}
+
 public enum CardType
 {
     Hearts,

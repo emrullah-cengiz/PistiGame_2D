@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 public class CardPileView : MonoBehaviour
 {
     [Inject] private Pool<CardView> _pool;
+    [SerializeField] public float CardScale = 0.225f;
 
     //Holds only viewable cards
     private Dictionary<CardData, CardView> _cardViews;
@@ -30,17 +31,16 @@ public class CardPileView : MonoBehaviour
         var targetTransform = CalculateCardTransform(_cardViews.Count - 1);
         cardView.transform.SetParent(transform, options.WorldPositionStaysOnStart);
         cardView.transform.SetAsLastSibling();
-        
+
         cardView.SetTransform(options.InitialWorldTransform);
 
-        await cardView.MoveTo(targetTransform, isClosed: options.IsClosed, options.MoveDuration,
-                              options.InitialWorldTransform is { scale: not null });
+        await cardView.MoveTo(targetTransform, isClosed: options.IsClosed, options.MoveDuration);
 
         if (options.DespawnViewAfterCompletion)
             RemoveCard(data, despawn: true);
     }
 
-    protected virtual (Vector3 pos, Vector3 angles) CalculateCardTransform(int index) => (Vector3.zero, Vector3.zero);
+    protected virtual (Vector3 pos, Vector3 angles, Vector3 scale) CalculateCardTransform(int index) => (Vector3.zero, Vector3.zero, Vector3.one * CardScale);
 
     public CardView RemoveCard(CardData card, bool despawn = false)
     {
@@ -55,11 +55,13 @@ public class CardPileView : MonoBehaviour
 
     private void OnValidate()
     {
-        _cardViews ??= new();
+        var tempCardViews = GetComponentsInChildren<CardView>();
 
         int i = 0;
-        foreach (var card in _cardViews.Values)
-            card.MoveTo(CalculateCardTransform(i++), false).Forget();
+        foreach (var card in tempCardViews)
+            (card.transform.position, 
+             card.transform.localEulerAngles, 
+             card.transform.localScale) = CalculateCardTransform(i++);
     }
 
 #endif
@@ -70,7 +72,7 @@ public class CardPileView : MonoBehaviour
             cardView.SetInteractable(b);
     }
 
-    private void Clear()
+    public void Clear()
     {
         var cardsToRemove = new List<CardData>(_cardViews.Keys);
         foreach (var card in cardsToRemove)

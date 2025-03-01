@@ -31,6 +31,6 @@ public class TableSessionResultPopup : InfoPopup
         _loseTitle.gameObject.SetActive(!_data.IsWon);
             
         _scoreText.text = _data.Score.ToString();
-        _earnedMoneyText.text = _data.EarnedMoney.ToAbbreviated("$");
+        _earnedMoneyText.text = _data.EarnedMoney.ToAbbreviated(" $");
     }
 }

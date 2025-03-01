@@ -21,7 +21,7 @@ public class TableSession
     public CardPile DrawPile { get; private set; }
     public CardPile DiscardPile { get; private set; }
 
-    public UserPlayer UserPlayer;
+    private UserPlayer UserPlayer;
     public TablePlayer[] Players;
 
     private int _nextCardSortingOrder;
@@ -105,10 +105,17 @@ public class TableSession
 
     public async UniTask DiscardFirstCards()
     {
-        _firstHiddenDiscardedCards = DrawPile.Cards.Take(3).ToList();
+        await DrawPile.TransferTo(DiscardPile, 3, new(isClosed: true, worldPositionStaysOnStart: true,
+                                                      initialWorldTransform: new(
+                                                          DrawPile.View.transform.position, null, Vector3.one * DrawPile.View.CardScale
+                                                      )));
 
-        await DrawPile.TransferTo(DiscardPile, 3, new(true));
-        await DrawPile.TransferTo(DiscardPile, 1, CardTransferOptions.Default);
+        _firstHiddenDiscardedCards = DiscardPile.Cards.Take(3).Reverse().ToList();
+
+        await DrawPile.TransferTo(DiscardPile, 1, new CardTransferOptions(worldPositionStaysOnStart: true,
+                                                                          initialWorldTransform: new(
+                                                                              DrawPile.View.transform.position, null, Vector3.one * DrawPile.View.CardScale
+                                                                          )));
     }
 
     public async UniTask DealCardsToPlayers()
@@ -123,7 +130,7 @@ public class TableSession
                     isSequential: false,
                     worldPositionStaysOnStart: true,
                     initialWorldTransform: new(
-                        DrawPile.View.transform.position, Vector3.zero, DrawPile.View.transform.localScale
+                        DrawPile.View.transform.position, null, Vector3.one * DrawPile.View.CardScale
                     )
                 );
 
@@ -147,7 +154,7 @@ public class TableSession
 
                 player.SetTurn(true);
 
-                var card = await player.PlayCard();
+                await player.PlayCard();
                 //patch, some times can not wait the tween.. 
                 await UniTask.WaitForSeconds(_cardSettings.GeneralMoveDuration, cancellationToken: _cancellationTokenSource.Token);
 

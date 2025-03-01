@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 426556385359347006, guid: 25a3d6cca33166c42b598717b5029e02, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1855970418278569204, guid: 25a3d6cca33166c42b598717b5029e02, type: 3}
       propertyPath: m_Icon
       value: 
@@ -82,6 +86,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42187573edce4375816be6e4f38c0ead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CardScale: 0.225
   _arcHeight: 0.12
   _totalWidth: 1.8
   _maxAngle: -15

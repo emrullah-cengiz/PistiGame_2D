@@ -1,5 +1,5 @@
 using System;
-using NaughtyAttributes;
+using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -9,5 +9,6 @@ public class RoomData
 {
     public string Name;
 
-    [MinMaxSlider(0, 1000000)] public Vector2Int BetRange;
+    [MinMaxSlider(0, 100000, showFields: true)]
+    public Vector2Int BetRange;
 }

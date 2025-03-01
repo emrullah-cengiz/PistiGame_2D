@@ -9,6 +9,8 @@ public class CardPile
 {
     [Inject] private readonly TableSessionSettings _tableSessionSettings;
     [Inject] private readonly CardSettings _cardSettings;
+    
+    [SerializeField] protected PileType _pileType;
 
     public CardPileView View { get; set; }
     public List<CardData> Cards { get; set; }

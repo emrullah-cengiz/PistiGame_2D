@@ -20,7 +20,7 @@ public class HandPileView : CardPileView
     [Inject]
     private void OnInject() => handLength = _settings.HandLength;
 
-    protected override (Vector3 pos, Vector3 angles) CalculateCardTransform(int index)
+    protected override (Vector3 pos, Vector3 angles, Vector3 scale) CalculateCardTransform(int index)
     {
         float spacing = _totalWidth / (handLength - 1);
         float xPos = -_totalWidth / 2 + index * spacing;
@@ -32,6 +32,6 @@ public class HandPileView : CardPileView
 
         float angle = Mathf.Lerp(-_maxAngle, _maxAngle, (float)index / (handLength - 1));
 
-        return (new Vector3(xPos, yPos, 0), new Vector3(0, 0, angle));
+        return (new Vector3(xPos, yPos, 0), new Vector3(0, 0, angle), Vector3.one * CardScale);
     }
 }

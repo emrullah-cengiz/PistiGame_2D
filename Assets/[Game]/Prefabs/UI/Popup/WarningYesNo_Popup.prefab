@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 53.50134}
-  m_SizeDelta: {x: 0, y: -107.0028}
+  m_AnchoredPosition: {x: 0, y: 46.680534}
+  m_SizeDelta: {x: -74.0541, y: -120.6443}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7006426589612171622
 CanvasRenderer:
@@ -67,15 +67,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: You will lose your wager.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ec691514da8975e47b45191f14822c0c, type: 2}
+  m_sharedMaterial: {fileID: 8026166836052185910, guid: ec691514da8975e47b45191f14822c0c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 5.27, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -298,6 +298,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2479162210470008620, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 3.4625854
+      objectReference: {fileID: 0}
     - target: {fileID: 2754216832901498637, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
       propertyPath: m_SizeDelta.y
       value: -549.9756
@@ -402,25 +406,17 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 7121144200216454498, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
-      propertyPath: m_Color.a
-      value: 0.95686275
-      objectReference: {fileID: 0}
-    - target: {fileID: 7121144200216454498, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
-      propertyPath: m_Color.b
-      value: 0.13333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 7121144200216454498, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
-      propertyPath: m_Color.g
-      value: 0.13333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 7121144200216454498, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
-      propertyPath: m_Color.r
-      value: 0.13333334
+    - target: {fileID: 7190436138293397267, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 2.7597656
       objectReference: {fileID: 0}
     - target: {fileID: 8496746646835444379, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
       propertyPath: m_Name
       value: WarningYesNo_Popup
+      objectReference: {fileID: 0}
+    - target: {fileID: 8496746646835444379, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -456,11 +452,11 @@ MonoBehaviour:
   _closeBtn: {fileID: 7660961762682722748}
   _yesBtn: {fileID: 4962705627872290297}
   _noBtn: {fileID: 348015414661820600}
-  _titleText: {fileID: 7169915890379246222}
+  _titleText: {fileID: 5701670881866401101}
   _messageText: {fileID: 4807508147539014995}
---- !u!114 &7169915890379246222 stripped
+--- !u!114 &5701670881866401101 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6561504076437827927, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8624369954356248212, guid: 7ee11afa3103005499be7a1fc1dd6771, type: 3}
   m_PrefabInstance: {fileID: 4075631986778143705}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}

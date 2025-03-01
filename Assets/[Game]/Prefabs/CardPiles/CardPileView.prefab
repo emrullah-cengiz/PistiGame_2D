@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2976546525889390650}
   - component: {fileID: 7566293095412949403}
+  - component: {fileID: 426556385359347006}
   m_Layer: 0
   m_Name: CardPileView
   m_TagString: Untagged
@@ -44,3 +45,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ea953246aee4f0587c03b910fbf269b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CardScale: 0.225
+--- !u!210 &426556385359347006
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855970418278569204}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 1
+  m_SortAtRoot: 0

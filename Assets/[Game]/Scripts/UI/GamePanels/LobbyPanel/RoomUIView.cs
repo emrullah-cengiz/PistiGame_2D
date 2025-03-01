@@ -56,8 +56,8 @@ public class RoomUIView : MonoBehaviour
         var hasEnoughMoney = _playerWallet.HasEnoughBalance(Data.BetRange.x);
 
         _nameText.text = Data.Name;
-        _betRangeText.text = $"{Data.BetRange.x.ToAbbreviated("$")} - " +
-                             $"{Data.BetRange.y.ToAbbreviated("$")}";
+        _betRangeText.text = $"{Data.BetRange.x.ToAbbreviated("$ ")} - " +
+                             $"{Data.BetRange.y.ToAbbreviated("$ ")}";
 
         _playBtn.interactable = hasEnoughMoney;
         _createTableBtn.interactable = hasEnoughMoney;

@@ -13,6 +13,18 @@ PrefabInstance:
       value: DiscardPile
       objectReference: {fileID: 0}
     - target: {fileID: 2976546525889390650, guid: 25a3d6cca33166c42b598717b5029e02, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2976546525889390650, guid: 25a3d6cca33166c42b598717b5029e02, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2976546525889390650, guid: 25a3d6cca33166c42b598717b5029e02, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2976546525889390650, guid: 25a3d6cca33166c42b598717b5029e02, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -78,5 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39bcf0543bd2426e940f08716e2c53d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scatterRange: 1
-  _maxScatterAngle: 30
+  CardScale: 0.15
+  _scatterRange: 0.2
+  _angleOffset: 8
+  _maxLength: 2

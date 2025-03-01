@@ -15,7 +15,7 @@ public class TablePlayerInfoBox : MonoBehaviour
     {
         _playerName.text = playerTableData.Name;
         _score.text = playerTableData.Score.ToString();
-        _score.text = _score.text.Replace("0", "O");
+        // _score.text = _score.text.Replace("0", "O");
     }
 
 }

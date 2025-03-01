@@ -28,7 +28,6 @@ public class BotPlayer : TablePlayer
         await UniTask.WaitForSeconds(_tableSessionSettings.BotWaitDurationBeforePlay);
         
         await Hand.TransferTo(_tableSession.DiscardPile, cardToDiscard, CardTransferOptions.Default);
-        
         return cardToDiscard;
     }
 
