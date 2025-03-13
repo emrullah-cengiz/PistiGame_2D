@@ -63,6 +63,7 @@ public class CardPile
 
     public async UniTask TransferAllTo(CardPile pile, CardTransferOptions options) => await TransferTo(pile, Cards.Count, options);
 
+    
     #region Card Queries
 
     public bool HasAnyJack(out CardData? card) => HasAny(CardValue.Jack, out card);
